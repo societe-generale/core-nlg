@@ -1,0 +1,2 @@
+include css/*
+include {{cookiecutter.project_name}}/resources/*
