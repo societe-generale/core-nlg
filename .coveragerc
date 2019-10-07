@@ -1,0 +1,13 @@
+[run]
+omit =
+    CoreNLG/tools.py
+    CoreNLG/Quickstart.py
+    CoreNLG/Errors.py
+    CoreNLG/Logger.py
+    CoreNLG/__init__.py
+    CoreNLG/tests/*
+    CoreNLG/resources/*
+
+[report]
+exclude_lines =
+    except KeyError:

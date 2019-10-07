@@ -1,0 +1,6 @@
+*/logs/*
+CoreNLG.egg-info/*
+dist/*
+.idea/*
+CoreNLG.iml
+./setup.py
