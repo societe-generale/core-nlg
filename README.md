@@ -511,7 +511,7 @@ Create a basic template with cookiecutter:
 
 ```
 pip install cookiecutter
-cookiecutter <<url to CoreNLG git repository>>
+cookiecutter https://github.com/societe-generale/core-nlg.git
 ```
 
 You should obtain this architecture of project:
