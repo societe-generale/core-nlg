@@ -415,7 +415,7 @@ class NlgTools:
 
     @debug_printer
     def no_interpret(self, text):
-        return self.add_tag("pre", "".join([self.__no_interpret_char(c) for c in text]))
+        return self.add_tag("span", "".join([self.__no_interpret_char(c) for c in text]), style="white-space:pre")
 
     @debug_printer
     def number(self, num, short="", sep=".", mile_sep=" ", dec=None, force_sign=False, remove_trailing_zeros=True):
