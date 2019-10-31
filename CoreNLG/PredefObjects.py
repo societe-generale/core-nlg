@@ -25,7 +25,6 @@ interpretable_char = {
 }
 
 interpretable_char_reverse = {value: key for key, value in interpretable_char.items()}
-interpretable_char_reverse["SPACE"] = '&nbsp;'
 
 class IteratorConstructor:
     def __init__(
