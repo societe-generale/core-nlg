@@ -7,10 +7,15 @@ created on 20/12/2018 16:37
 from setuptools import setup, find_packages
 import CoreNLG
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="CoreNLG",
-    version="1.0.0",
+    version="1.0.1",
     description="",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/societe-generale/core-nlg.git",
     author="Fabien Giely",
     license="Apache v2",
