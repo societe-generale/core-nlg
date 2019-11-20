@@ -409,7 +409,7 @@ class NlgTools:
     @staticmethod
     def __no_interpret_char(char):
         try:
-            return "#" + interpretable_char[char] + "#"
+            return "".join(["#", interpretable_char[char], "#"])
         except KeyError:
             return char
 
