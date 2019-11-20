@@ -415,7 +415,11 @@ class NlgTools:
 
     @debug_printer
     def no_interpret(self, text):
-        return self.add_tag("span", "".join([self.__no_interpret_char(c) for c in text]), style="white-space:pre")
+        not_interpret_text = "".join([self.__no_interpret_char(c) for c in text])
+        if '  ' in text:
+            return self.add_tag("span", not_interpret_text, style="white-space:pre")
+        else:
+            return not_interpret_text
 
     @debug_printer
     def number(self, num, short="", sep=".", mile_sep=" ", dec=None, force_sign=False, remove_trailing_zeros=True):
