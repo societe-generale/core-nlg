@@ -313,7 +313,9 @@ class NlgTools:
                             break
                     else:
                         try:
-                            elem.append(next(part))
+                            e = next(part)
+                            if e is not None and e != "":
+                                elem.append(e)
                         except StopIteration:
                             end = True
                             break
