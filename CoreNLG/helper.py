@@ -304,21 +304,16 @@ class NlgTools:
                         elem.append(part)
                 else:
                     is_generator = True
-                    if isinstance(part, list):
-                        try:
-                            if part[i] is not None and part[i] != "":
-                                elem.append(part[i])
-                        except IndexError:
-                            end = True
-                            break
-                    else:
-                        try:
+                    try:
+                        if isinstance(part, list):
+                            e = part[i]
+                        else:
                             e = next(part)
-                            if e is not None and e != "":
-                                elem.append(e)
-                        except StopIteration:
-                            end = True
-                            break
+                    except (IndexError, StopIteration):
+                        end = True
+                        break
+                    if e is not None and e != "":
+                        elem.append(e)
             if not end and elem is not None and len(elem) > 0:
                 elem_list.append(elem)
             if not is_generator:
