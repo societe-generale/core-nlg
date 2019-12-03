@@ -18,6 +18,7 @@ from lxml.html import builder
 from CoreNLG.PredefObjects import IteratorConstructor, interpretable_char
 from CoreNLG.decorators import debug_printer, beautifier
 from CoreNLG.resources.contraction import contraction
+from CoreNLG.tools import read_json_resource, get_resource_lang
 
 
 class NlgTools:
@@ -55,29 +56,16 @@ class NlgTools:
         self._is_beautiful = False
         self._lang = lang
 
-        with open(
-                os.path.join(os.path.dirname(__file__), "resources/ponctuation.json")
-        ) as f:
-            try:
-                self._ponct = json.load(f)["lang"][self._lang]
-            except KeyError:
-                self.logger.error("lang \"{}\" doesn't exist in ponctuation resource".format(self._lang))
-                exit(1)
+        self_path = os.path.dirname(__file__)
+        self._ponct = read_json_resource(os.path.join(self_path, "resources/ponctuation.json"),
+                                         self._lang,
+                                         self.logger)
 
-        try:
-            self._contract = contraction[self._lang]
-        except KeyError:
-            self.logger.error("lang \"{}\" doesn't exist in contraction resource".format(self._lang))
-            exit(1)
+        self._default_words = read_json_resource(os.path.join(self_path, "resources/default_words.json"),
+                                         self._lang,
+                                         self.logger)
 
-        with open(
-                os.path.join(os.path.dirname(__file__), "resources/default_words.json")
-        ) as f:
-            try:
-                self._default_words = json.load(f)["lang"][self._lang]
-            except KeyError:
-                self.logger.error("lang \"{}\" doesn't exist in default_words resource".format(self._lang))
-                exit(1)
+        self._contract = get_resource_lang(contraction, self._lang, self.logger)
 
     def __str__(self):
         self.beautifier()
@@ -235,11 +223,6 @@ class NlgTools:
         return " ".join(text)
 
     @debug_printer
-    def simple_conjug(self, pers=None, verb=None, tense="PRESENT"):
-        # TODO conjug verb
-        return verb
-
-    @debug_printer
     def free_text(self, *words):
         text = list()
         for word in words:
@@ -345,111 +328,6 @@ class NlgTools:
 
     def enum(self, elems, const=None):
         return self.iter_elems([elems], const)
-
-    @debug_printer
-    def add_tag(self, tag, text="", _class=None, **kwargs):
-        """
-
-        :param tag: the HTML container name
-        :type tag: string
-
-        :param text:
-        :type text: string / list of strings
-
-        :param _class: the value of the attribute 'class' in the container
-        :type _class: string
-
-        :param kwargs:
-        :return:
-        """
-        try:
-            html_tag = getattr(builder, tag.upper())
-        except AttributeError:
-            return "tag {} doesn't exist in html".format(tag)
-        args = list()
-        if _class is not None:
-            args.append(builder.CLASS(_class))
-        if isinstance(text, str):
-            e = self.__handle_string_to_html(html_tag, text, *args, **kwargs)
-            return html.tostring(e, encoding="utf-8").decode("utf-8")
-        else:
-            iter_return = list()
-            for t in text:
-                e = self.__handle_string_to_html(html_tag, t, *args, **kwargs)
-                iter_return.append(html.tostring(e, encoding="utf-8").decode("utf-8"))
-            return list(iter_return)
-
-    @staticmethod
-    def __handle_string_to_html(html_tag, text, *args, **kwargs):
-        """
-        If the text contains HTML elements, adds them inside the HTML tag created with the builder 'html_tag'.
-        If it contains a string not in a HTML element, then it becomes the text content of the HTML tag.
-
-        :param html_tag: builder of the HTML tag
-        :type html_tag: lxml.html.builder function
-
-        :param text: the text of the HTML tag
-        :type text: string
-
-        :param args: the class of the HTML container
-        :type args: None / string / list of strings
-
-        :param kwargs: other attributes of the HTML container
-        :type kwargs: None / string / list of strings
-
-        :return: the final element correctly formatted, especially if there was HTML containers in the text
-        :return type: HTML element (lxml.html.HtmlElement)
-        """
-
-        e = html_tag(*args, **kwargs)
-        e.text = ""
-        for elem in html.fragments_fromstring(text):
-            if isinstance(elem, str):
-                e.text += elem
-            else:
-                e.append(elem)
-        return e
-
-    @staticmethod
-    def __no_interpret_char(char):
-        try:
-            return "".join(["#", interpretable_char[char], "#"])
-        except KeyError:
-            return char
-
-    @debug_printer
-    def no_interpret(self, text):
-        not_interpret_text = "".join([self.__no_interpret_char(c) for c in text])
-        if '  ' in text:
-            return self.add_tag("span", not_interpret_text, style="white-space:pre")
-        else:
-            return not_interpret_text
-
-    @debug_printer
-    def number(self, num, short="", sep=".", mile_sep=" ", dec=None, force_sign=False, remove_trailing_zeros=True):
-
-        # todo : changer texte grands nombres ( 1 000 millions de milliard au lieu de 1 000M)
-        _sign = ""
-        if force_sign and num > 0:
-            _sign = "+"
-        if dec is None:
-            _format = "{}{:,}{}"
-        else:
-            false_dec = 0
-            if remove_trailing_zeros:
-                num = round(num, dec)
-                false_dec = dec
-                false_num = num
-                while false_dec > 0:
-                    if isinstance(false_num, int) or false_num == int(false_num):
-                        break
-                    else:
-                        false_dec -= 1
-                        false_num *= 10
-            _format = "{}{:,." + str(dec - false_dec) + "f}{}"
-        return self.no_interpret(
-            _format.format(_sign, num, short).replace(",", mile_sep).replace(".", sep)
-        )
 
     @staticmethod
     def intensity(num, intensity_def):
