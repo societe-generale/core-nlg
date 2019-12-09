@@ -5,10 +5,9 @@ created on 21/02/2019 17:27
 """
 
 import lxml
-import os
 from lxml.html import builder
 
-from CoreNLG.helper import NlgTools
+from CoreNLG.NlgTools import NlgTools
 
 
 class Datas:
@@ -140,22 +139,22 @@ class Section:
         self.__text = list()
 
     @property
-    def tools(self):
+    def tools(self) -> NlgTools():
         return self.__nlg
 
 
 class TextClass:
     def __init__(self, section):
         self.section = section
-        self.nlg = self.section.tools
-        self.nlg_tags = self.section.tools.add_tag
-        self.nlg_num = self.section.tools.number
-        self.nlg_syn = self.section.tools.synonym
-        self.nlg_iter = self.section.tools.iter_elems
-        self.nlg_enum = self.section.tools.enum
-        self.no_interpret = self.section.tools.no_interpret
-        self.free_text = self.section.tools.free_text
-        self.post_eval = self.section.tools.post_eval
+        self.nlg: NlgTools = self.section.tools
+        self.nlg_tags = self.nlg.add_tag
+        self.nlg_num = self.nlg.nlg_num
+        self.nlg_syn = self.nlg.nlg_syn
+        self.nlg_iter = self.nlg.enum
+        self.nlg_enum = self.nlg.enum
+        self.no_interpret = self.nlg.no_interpret
+        self.free_text = self.nlg.free_text
+        self.post_eval = self.nlg.post_eval
 
     def __getattr__(self, name):
         try:
