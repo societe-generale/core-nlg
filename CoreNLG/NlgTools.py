@@ -6,6 +6,8 @@ created on 02/12/2019 16:03
 import os
 
 from CoreNLG.IterElems import IterElems
+from CoreNLG.KeyVals import KeyVals
+from CoreNLG.Synonym import Synonym
 from CoreNLG.resources.contraction import contraction
 
 from CoreNLG.AddTag import AddTag
@@ -47,6 +49,8 @@ class NlgTools:
             sep=read_default_words(self._default_words, "iter_elems", "sep", default=","),
             last_sep=read_default_words(self._default_words, "iter_elems", "last_sep", default="and"),
         ).enum
+        self.post_evals = KeyVals()
+        self.nlg_syn = Synonym(freeze, self.post_evals)
 
     def __get_resources(self):
         resource_path = os.path.join(os.path.dirname(__file__), "resources")
