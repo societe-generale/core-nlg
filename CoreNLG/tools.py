@@ -3,6 +3,7 @@
 created on 18/12/2018 14:19
 @author: fgiely
 """
+import functools
 import json
 import os
 
@@ -71,10 +72,8 @@ def handle_string_to_html(html_tag, text, *args, **kwargs):
     return e
 
 
-def take_second_arg_first_none(arg, class_arg):
-    if arg is None:
-        return class_arg
-    return arg
+def take_second_arg_if_first_none(arg, class_arg):
+    return class_arg if arg is None else arg
 
 
 def read_json_resource(path, lang, logger):
@@ -98,3 +97,19 @@ def read_default_words(resource, *args, default=""):
         except KeyError:
             return default
     return elem if elem is not None else default
+
+
+def temporary_override_args(f):
+    @functools.wraps(f)
+    def temporary_override_f(*args, **kwargs):
+        tmp = {}
+        for k, v in kwargs.items():
+            if v is not None:
+                class_value = getattr(args[0], k)
+                tmp.update({k: class_value})
+                setattr(args[0], k, v)
+        f_value = f(*args, **kwargs)
+        for k, v in tmp.items():
+            setattr(args[0], k, v)
+        return f_value
+    return temporary_override_f
