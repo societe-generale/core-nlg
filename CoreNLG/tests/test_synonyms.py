@@ -48,7 +48,7 @@ class TestSynonyms:
         datas = Datas({})
         doc = Document(datas, lang="fr")
         section = doc.new_section()
-        section.text = section.tools.synonym(input, mode="random")
+        section.text = section.tools.nlg_syn(input, mode="random")
         section.write()
         assert section.html.xpath('//div')[0].text_content() in input
 
@@ -63,7 +63,7 @@ class TestSynonyms:
         datas = Datas({})
         doc = Document(datas, lang="fr", freeze=True)
         section = doc.new_section()
-        section.text = section.tools.synonym(input)
+        section.text = section.tools.nlg_syn(input)
         section.write()
         assert section.html.xpath('//div')[0].text_content() == input[0]
 
@@ -78,7 +78,7 @@ class TestSynonyms:
         datas = Datas({})
         doc = Document(datas, lang="fr", freeze=True)
         section = doc.new_section()
-        section.text = section.tools.synonym(section.tools.synonym(input), section.tools.synonym(input))
+        section.text = section.tools.nlg_syn(section.tools.nlg_syn(input), section.tools.nlg_syn(input))
         section.write()
         assert section.html.xpath('//div')[0].text_content() == input[0]
 
@@ -93,7 +93,7 @@ class TestSynonyms:
         datas = Datas({})
         doc = Document(datas, lang="fr")
         section = doc.new_section()
-        section.text = section.tools.synonym(section.tools.synonym(input), section.tools.synonym(input))
+        section.text = section.tools.nlg_syn(section.tools.nlg_syn(input), section.tools.nlg_syn(input))
         section.write()
         assert section.html.xpath('//div')[0].text_content() in input
 
@@ -109,8 +109,8 @@ class TestSynonyms:
         section = doc.new_section()
         syno1 = ("word", "TEST_1")
         syno2 = ("term", "TEST_2")
-        section.text = section.tools.synonym(syno1, syno2)
-        section.text = section.tools.post_eval("TEST_1", section.tools.synonym(syno2), section.tools.synonym(syno1))
+        section.text = section.tools.nlg_syn(syno1, syno2)
+        section.text = section.tools.post_eval("TEST_1", section.tools.nlg_syn(syno2), section.tools.nlg_syn(syno1))
         section.write()
         expected_result = [
             "Word term",
@@ -129,9 +129,9 @@ class TestSynonyms:
         doc = Document(datas, lang="fr")
         section = doc.new_section()
         synos = ["word", "term", "note"]
-        section.text = section.tools.synonym(synos)
-        section.text = section.tools.synonym(synos)
-        section.text = section.tools.synonym(synos)
+        section.text = section.tools.nlg_syn(synos)
+        section.text = section.tools.nlg_syn(synos)
+        section.text = section.tools.nlg_syn(synos)
         section.write()
         expected_output = [
             "Word term note",
@@ -153,7 +153,7 @@ class TestSynonyms:
     #     datas = Datas({})
     #     doc = Document(datas, lang="fr")
     #     section = doc.new_section()
-    #     section.text = section.tools.synonym(section.tools.synonym(("word", "TEST_1"), "term"))
+    #     section.text = section.tools.nlg_syn(section.tools.nlg_syn(("word", "TEST_1"), "term"))
     #     section.text = section.tools.post_eval("TEST_1", "test", "")
     #     section.write()
     #     expected_output = [
@@ -173,7 +173,7 @@ class TestSynonyms:
         datas = Datas({})
         doc = Document(datas, lang="fr")
         section = doc.new_section()
-        section.text = section.tools.synonym(input)
+        section.text = section.tools.nlg_syn(input)
         section.text = section.tools.post_eval("TEST_KEYVAL", "post", "")
         section.write()
         assert section.html.xpath('//div')[0].text_content() == expected
