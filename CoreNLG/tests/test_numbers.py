@@ -5,14 +5,14 @@ created on 25/07/2019 15:42
 """
 import pytest
 
-from CoreNLG.helper import NlgTools
+from CoreNLG.NlgTools import NlgTools
 from CoreNLG.tests.fixtures import post_treatment_with_numbers_fr
 
 
 class TestNumbers:
 
     nlg = NlgTools()
-    nlg_num = nlg.number
+    nlg_num = nlg.nlg_num
 
     @pytest.mark.parametrize(
         "input, expected",

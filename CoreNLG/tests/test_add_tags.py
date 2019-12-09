@@ -5,14 +5,14 @@ created on 24/07/2019 17:09
 """
 import pytest
 
-from CoreNLG.helper import NlgTools
+from CoreNLG.NlgTools import NlgTools
 
 
 class TestAddTags:
 
     nlg = NlgTools()
     add_tag = nlg.add_tag
-    iter_elems = nlg.iter_elems
+    iter_elems = nlg.enum
 
     @pytest.mark.parametrize(
         "tag, expected",

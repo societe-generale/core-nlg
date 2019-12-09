@@ -72,7 +72,7 @@ def iter_elem_with_post_treatment_fr(text_input, iter_const=None):
     datas = Datas({})
     doc = Document(datas, lang="fr")
     section = doc.new_section()
-    section.text = section.tools.iter_elems(text_input, iter_const)
+    section.text = section.tools.enum(text_input, iter_const)
     section.write()
     return section.html.xpath('//div')[0].text_content()
 

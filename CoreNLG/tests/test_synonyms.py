@@ -5,8 +5,8 @@ created on 25/07/2019 14:57
 """
 import pytest
 from CoreNLG.DocumentConstructors import Datas, Document
+from CoreNLG.NlgTools import NlgTools
 
-from CoreNLG.helper import NlgTools
 from CoreNLG.tests.fixtures import post_treatment_with_synonyms_fr
 
 
@@ -23,7 +23,7 @@ class TestSynonyms:
         )
     def test_synonym_before_treatment(self, input):
         nlg = NlgTools()
-        nlg_syn = nlg.synonym
+        nlg_syn = nlg.nlg_syn
         assert nlg_syn(input) == "*1*"
 
     @pytest.mark.parametrize(
