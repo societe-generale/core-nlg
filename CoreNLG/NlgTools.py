@@ -8,6 +8,7 @@ import os
 from lxml import html
 from lxml.html import builder
 
+from CoreNLG.FreeText import FreeText
 from CoreNLG.IterElems import IterElems
 from CoreNLG.KeyVals import KeyVals
 from CoreNLG.Synonym import Synonym
@@ -45,18 +46,27 @@ class NlgTools:
         self.__get_resources()
 
         self.add_tag = AddTag().add_tag
+
         self.no_interpret = NoInterpret(add_tag=self.add_tag).no_interpret
+
         self.nlg_num = Number(
             no_interpret=self.no_interpret,
             sep=read_default_words(self._default_words, "numbers", "sep", default="."),
             mile_sep=read_default_words(self._default_words, "numbers", "mile_sep", default=" "),
         ).nlg_num
+
         self.enum = IterElems(
             sep=read_default_words(self._default_words, "iter_elems", "sep", default=","),
             last_sep=read_default_words(self._default_words, "iter_elems", "last_sep", default="and"),
         ).enum
-        self.post_evals = KeyVals()
-        self.nlg_syn = Synonym(freeze, self.post_evals)
+
+        self.__keyvals = KeyVals()
+        self.post_eval = self.__keyvals.post_evals
+
+        self.__synonym = Synonym(freeze, self.__keyvals)
+        self.nlg_syn = self.__synonym.synonym
+
+        self.free_text = FreeText().free_text
 
     @property
     def html(self):
@@ -80,15 +90,15 @@ class NlgTools:
         text = list()
         for arg in args:
 
-            arg = self.nlg_syn.handle_patterns(arg)
-            self.nlg_syn.update_position(arg)
+            arg = self.__synonym.handle_patterns(arg)
+            self.__synonym.update_position(arg)
 
             text.append(arg)
             if not no_space:
                 text.append(" ")
 
-        self.nlg_syn.smart_syno_lvl = 0
-        self.nlg_syn.synos_by_pattern = {}
+        self.__synonym.smart_syno_lvl = 0
+        self.__synonym.synos_by_pattern = {}
         span = handle_string_to_html(
             builder.SPAN, "".join(text), builder.CLASS("to_delete")
         )
