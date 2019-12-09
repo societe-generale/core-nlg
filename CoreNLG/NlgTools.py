@@ -5,6 +5,7 @@ created on 02/12/2019 16:03
 """
 import os
 
+from CoreNLG.IterElems import IterElems
 from CoreNLG.resources.contraction import contraction
 
 from CoreNLG.AddTag import AddTag
@@ -40,7 +41,12 @@ class NlgTools:
         self.nlg_num = Number(
             no_interpret=self.no_interpret,
             sep=read_default_words(self._default_words, "numbers", "sep", default="."),
-            mile_sep=read_default_words(self._default_words, "numbers", "mile_sep", default=" "),).nlg_num
+            mile_sep=read_default_words(self._default_words, "numbers", "mile_sep", default=" "),
+        ).nlg_num
+        self.enum = IterElems(
+            sep=read_default_words(self._default_words, "iter_elems", "sep", default=","),
+            last_sep=read_default_words(self._default_words, "iter_elems", "last_sep", default="and"),
+        ).iter_elems
 
     def __get_resources(self):
         resource_path = os.path.join(os.path.dirname(__file__), "resources")

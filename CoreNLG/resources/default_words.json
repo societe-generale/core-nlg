@@ -2,6 +2,7 @@
   "lang": {
     "fr": {
       "iter_elems": {
+        "sep": ",",
         "last_sep": "et"
       },
       "numbers": {
