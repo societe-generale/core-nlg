@@ -62,7 +62,7 @@ class NlgTools:
         ).enum
 
         self.__keyvals = KeyVals()
-        self.post_eval = self.__keyvals.post_evals
+        self.post_eval = self.__keyvals.post_eval
 
         self.__synonym = Synonym(freeze, self.__keyvals)
         self.nlg_syn = self.__synonym.synonym
