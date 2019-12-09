@@ -9,6 +9,7 @@ from lxml import html
 from lxml.html import builder
 
 from CoreNLG.FreeText import FreeText
+from CoreNLG.Intensity import Intensity
 from CoreNLG.IterElems import IterElems
 from CoreNLG.KeyVals import KeyVals
 from CoreNLG.Synonym import Synonym
@@ -67,6 +68,8 @@ class NlgTools:
         self.nlg_syn = self.__synonym.synonym
 
         self.free_text = FreeText().free_text
+
+        self.intensity = Intensity().intensity
 
     @property
     def html(self):
