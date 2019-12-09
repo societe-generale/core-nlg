@@ -54,7 +54,7 @@ def post_treatment_with_synonyms_fr(*text_input):
     datas = Datas({})
     doc = Document(datas, lang="fr")
     section = doc.new_section()
-    section.text = section.tools.synonym(*text_input)
+    section.text = section.tools.nlg_syn(*text_input)
     section.write()
     return section.html.xpath('//div')[0].text_content()
 
@@ -63,16 +63,16 @@ def post_treatment_with_numbers_fr(num, **kwargs):
     datas = Datas({})
     doc = Document(datas, lang="fr")
     section = doc.new_section()
-    section.text = section.tools.number(num, **kwargs)
+    section.text = section.tools.nlg_num(num, **kwargs)
     section.write()
     return section.html.xpath('//div')[0].text_content()
 
 
-def iter_elem_with_post_treatment_fr(text_input, iter_const=None):
+def iter_elem_with_post_treatment_fr(text_input, **kwargs):
     datas = Datas({})
     doc = Document(datas, lang="fr")
     section = doc.new_section()
-    section.text = section.tools.enum(text_input, iter_const)
+    section.text = section.tools.enum(text_input, **kwargs)
     section.write()
     return section.html.xpath('//div')[0].text_content()
 
