@@ -82,7 +82,7 @@ class TestIterElem:
         assert self.iter_elems(input, text_if_empty_list="empty") == "empty"
 
     def test_single_sentence(self, list_elem):
-        assert self.iter_elems([[e for e in list_elem]]) == "elem1 , elem2 et elem3"
+        assert self.iter_elems([[e for e in list_elem]]) == "elem1 , elem2 and elem3"
 
     def test_bullet_points(self, list_elem):
         text = self.iter_elems([[e for e in list_elem]], nb_elem_bullet=0)
@@ -94,7 +94,7 @@ class TestIterElem:
 
     def test_long_list_elem(self, long_list_elem):
         text = self.iter_elems([[e for e in long_list_elem]], )
-        assert text == "elem1 , elem2 , elem3 , elem4 , elem5 et elem6"
+        assert text == "elem1 , elem2 , elem3 , elem4 , elem5 and elem6"
 
     def test_bullet_long_list_elem(self, long_list_elem):
         text = self.iter_elems([[e for e in long_list_elem]], nb_elem_bullet=0)
@@ -102,7 +102,7 @@ class TestIterElem:
 
     def test_long_list_limit_elem(self, long_list_elem):
         text = self.iter_elems([[e for e in long_list_elem]], max_elem=4)
-        assert text == "elem1 , elem2 , elem3 et elem4"
+        assert text == "elem1 , elem2 , elem3 and elem4"
 
     def test_bullet_long_list_limit_elem(self, long_list_elem):
         text = self.iter_elems([[e for e in long_list_elem]], nb_elem_bullet=0, max_elem=4)
@@ -110,11 +110,11 @@ class TestIterElem:
 
     def test_long_list_limit_no_more_bullet_elem(self, long_list_elem):
         text = self.iter_elems([[e for e in long_list_elem]], nb_elem_bullet=3, max_elem=2)
-        assert text == "elem1 et elem2"
+        assert text == "elem1 and elem2"
 
     def test_long_list_with_empty_elem(self, long_list_with_empty_elem):
         text = self.iter_elems([[e for e in long_list_with_empty_elem]], max_elem=4)
-        assert text == "elem1 , elem2 , elem4 et elem6"
+        assert text == "elem1 , elem2 , elem4 and elem6"
 
     def test_bullet_long_list_with_empty_elem(self, long_list_with_empty_elem):
         text = self.iter_elems([[e for e in long_list_with_empty_elem]], nb_elem_bullet=0)
@@ -133,13 +133,13 @@ class TestIterElem:
             [e for e in long_list_elem],
             [e for e in long_list_with_empty_elem]
         ], begin_w="start", end_w="end")
-        assert text == "start elem1 elem1 , elem2 elem2 , elem3 , elem4 elem4 , elem5 et elem6 elem6 end"
+        assert text == "start elem1 elem1 , elem2 elem2 , elem3 , elem4 elem4 , elem5 and elem6 elem6 end"
 
 
 class TestIterElemPostTreatment:
     def test_single_sentence_with_post_treatment(self, list_elem):
         text = iter_elem_with_post_treatment_fr([[e for e in list_elem]])
-        assert text == "Elem1, elem2 et elem3"
+        assert text == "Elem1, elem2 and elem3"
 
     def test_bullet_points_with_post_treatment(self, list_elem):
         text = iter_elem_with_post_treatment_fr([[e for e in list_elem]], nb_elem_bullet=0)
