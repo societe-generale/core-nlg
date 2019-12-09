@@ -16,8 +16,8 @@ class Synonym:
         self._keyvals = keyvals
 
         self._synos_written = []
-        self._smart_syno_lvl = 0
-        self._synos_by_pattern = {}
+        self.smart_syno_lvl = 0
+        self.synos_by_pattern = {}
         self._transco_choice = {}
         self._tmp_choice = {}
         self._text_pos = 0
@@ -44,11 +44,11 @@ class Synonym:
             if mode == "random":
                 return random.choice(s_words)
             else:
-                pattern = "*" + str(self._smart_syno_lvl + 1) + "*"
+                pattern = "*" + str(self.smart_syno_lvl + 1) + "*"
 
                 keyval_context[pattern] = tmp_keyvals
 
-                for pat in [p for word in s_words for p in self._synos_by_pattern if p in word]:
+                for pat in [p for word in s_words for p in self.synos_by_pattern if p in word]:
                     if pat in keyval_context:
                         keyval_context[pattern].update(keyval_context[pat])
                         del keyval_context[pat]
@@ -56,13 +56,13 @@ class Synonym:
                 if not keyval_context[pattern]:
                     del keyval_context[pattern]
 
-                self._smart_syno_lvl += 1
-                self._synos_by_pattern[pattern] = s_words
+                self.smart_syno_lvl += 1
+                self.synos_by_pattern[pattern] = s_words
 
                 return pattern
 
     def __handle_synonym(self, pattern_to_evaluate):
-        tmp_sbp = self._synos_by_pattern.copy()
+        tmp_sbp = self.synos_by_pattern.copy()
         tmp_synos_written = self._synos_written.copy()
 
         best_evaluation = self.__get_best_leaf(pattern_to_evaluate, tmp_sbp, tmp_synos_written)
@@ -183,21 +183,21 @@ class Synonym:
 
         return s1, s2
 
-    def __update_position(self, sentence):
+    def update_position(self, sentence):
         sentence_without_tag = self._TAG_RE.sub(' ', sentence)
         sentence_without_punct = sentence_without_tag.translate(str.maketrans('', '', string.punctuation))
 
         nb_words = len([word for word in sentence_without_punct.strip().split() if word != ''])
         self._text_pos += nb_words
 
-    def __handle_patterns(self, arg):
+    def handle_patterns(self, arg):
         done = False
         post_evals = self._keyvals.post_evals
         while not done:
             first_syno, pos_first_syno = None, None
             first_eval, pos_first_eval = None, None
 
-            for pattern in self._synos_by_pattern:
+            for pattern in self.synos_by_pattern:
                 pos = arg.find(pattern)
                 if pos != -1:
                     first_syno = pattern
@@ -235,7 +235,7 @@ class Synonym:
                     following_text = arg[pos_end_pattern:]
                     analyzed_text = text_to_analyze.replace(first_syno, self.__handle_synonym(first_syno))
                     arg = analyzed_text + following_text
-                    del self._synos_by_pattern[first_syno]
+                    del self.synos_by_pattern[first_syno]
                 else:
                     arg = arg.replace(first_eval, self._keyvals.handle_post_eval(post_evals[first_eval]))
                     del post_evals[first_eval]
