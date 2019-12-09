@@ -38,18 +38,18 @@ class IterElems:
         self.end_of_last_bullet = end_of_last_bullet
 
     @temporary_override_args
-    def iter_elems(self,
-                   pattern,
-                   max_elem=None,
-                   nb_elem_bullet=None,
-                   begin_w=None,
-                   end_w=None,
-                   sep=None,
-                   last_sep=None,
-                   capitalize_bullets=None,
-                   text_if_empty_list=None,
-                   end_of_bullet=None,
-                   end_of_last_bullet=None):
+    def enum(self,
+             pattern,
+             max_elem=None,
+             nb_elem_bullet=None,
+             begin_w=None,
+             end_w=None,
+             sep=None,
+             last_sep=None,
+             capitalize_bullets=None,
+             text_if_empty_list=None,
+             end_of_bullet=None,
+             end_of_last_bullet=None):
 
         if pattern is None:
             return ""
@@ -142,16 +142,16 @@ class IterElems:
         return elem_list[:self.max_elem]
 
 
-def iter_elems(self,
-               pattern,
-               max_elem=None,
-               nb_elem_bullet=None,
-               begin_w=None,
-               end_w=None,
-               sep=None,
-               last_sep=None,
-               capitalize_bullets=None,
-               text_if_empty_list=None,
-               end_of_bullet=None,
-               end_of_last_bullet=None):
-    return IterElems().iter_elems(pattern, **{k: v for k, v in locals().items() if k != "pattern"})
+def enum(self,
+         pattern,
+         max_elem=None,
+         nb_elem_bullet=None,
+         begin_w=None,
+         end_w=None,
+         sep=None,
+         last_sep=None,
+         capitalize_bullets=None,
+         text_if_empty_list=None,
+         end_of_bullet=None,
+         end_of_last_bullet=None):
+    return IterElems().enum(pattern, **{k: v for k, v in locals().items() if k != "pattern"})

@@ -46,7 +46,7 @@ class NlgTools:
         self.enum = IterElems(
             sep=read_default_words(self._default_words, "iter_elems", "sep", default=","),
             last_sep=read_default_words(self._default_words, "iter_elems", "last_sep", default="and"),
-        ).iter_elems
+        ).enum
 
     def __get_resources(self):
         resource_path = os.path.join(os.path.dirname(__file__), "resources")
