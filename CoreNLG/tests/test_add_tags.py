@@ -82,8 +82,8 @@ class TestAddTags:
         assert self.add_tag("div", self.add_tag("p", self.add_tag("b", ))) == "<div><p><b></b></p></div>"
 
     def test_iter_tags(self):
-        assert self.iter_elems(self.add_tag("b", [t for t in ["test", "iter", "tag"]])) == "<b>test</b> <b>iter</b> <b>tag</b>"
+        assert self.iter_elems(self.add_tag("b", [t for t in ["test", "iter", "tag"]])) == "<b>test</b> , <b>iter</b> and <b>tag</b>"
 
     def test_iter_tags_2(self):
-        assert self.iter_elems([self.add_tag("b", t) for t in ["test", "iter", "tag"]]) == "<b>test</b> <b>iter</b> <b>tag</b>"
+        assert self.iter_elems([self.add_tag("b", t) for t in ["test", "iter", "tag"]]) == "<b>test</b> , <b>iter</b> and <b>tag</b>"
 
