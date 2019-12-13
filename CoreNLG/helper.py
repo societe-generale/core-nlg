@@ -464,6 +464,10 @@ class NlgTools:
         s_words = []
         tmp_keyvals = {}
 
+        # unpacking arguments if only one element
+        if len(words) == 1:
+            words = words[0]
+
         for word in words:
             if type(word) is tuple:
                 s_words.append(word[0])
