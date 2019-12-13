@@ -28,6 +28,10 @@ class Synonym:
         tmp_keyvals = {}
         keyval_context = self._keyvals.keyval_context
 
+        # unpacking arguments if only one element
+        if len(words) == 1:
+            words = words[0]
+
         for word in words:
             if type(word) is tuple:
                 s_words.append(word[0])
