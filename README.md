@@ -32,7 +32,7 @@ Auto-agreement tools based on extra-resources are <b>not provided</b> in this li
 
 You can chose a language (French or English) and typography will be automatically handled based on it.\
 For example:\
-In French 'Ma liste d'éléments:' becomes "Ma liste d'éléments :".\
+In French 'Ma liste d'ï¿½lï¿½ments:' becomes "Ma liste d'ï¿½lï¿½ments :".\
 In English "My list of items :" will become "My list of items:"
 
 A period will always be followed by a capitalized word.
@@ -42,11 +42,11 @@ A period will always be followed by a capitalized word.
 Contractions are automatically handled based on the selected language (French or English).
 
 ```python
-word_1 = 'le dépassement'
+word_1 = 'le dï¿½passement'
 word_2 = 'les hausses'
 
-self.free_text('À cause de', word_1) # "À cause du dépassement"
-self.free_text('À cause de', word_2) # "À cause des hausses"
+self.free_text('ï¿½ cause de', word_1) # "ï¿½ cause du dï¿½passement"
+self.free_text('ï¿½ cause de', word_2) # "ï¿½ cause des hausses"
 ```
 
 ## CoreNLG functions
@@ -160,14 +160,23 @@ self.free_text(
 
 ### nlg_enum and nlg_iter
 
-The <b>nlg_enum</b> method takes a list of element and an instance of IteratorConstructor class as parameters. It returns a string.\
-The IteratorConstructor object allows to specify several criterion for creating the output string. 
+The <b>nlg_enum</b> method takes a list of element and an severatal arguments to create the output string. It returns a string.\
 
 ```python
-def enum(self, my_list_of_elements, iterating_parameters=None)
+def enum(self, my_list_of_elements,
+               max_elem=None,
+               nb_elem_bullet=None,
+               begin_w=None,
+               end_w=None,
+               sep=None,
+               last_sep=None,
+               capitalize_bullets=None,
+               text_if_empty_list=None,
+               end_of_bullet=None,
+               end_of_last_bullet=None)
 
 
-class IteratorConstructor:
+class IterElems:
   def __init__(
     self,
 
@@ -210,7 +219,7 @@ my_list = ["six apples", "three bananas", "two peaches"]
 self.nlg_enum(my_list)
 # "six apples, three bananas and two peaches"
 
-self.nlg_enum(my_list, IteratorConstructor(last_sep="but also"))
+self.nlg_enum(my_list, last_sep="but also")
 # "six apples, three bananas but also two peaches"
 
 
@@ -218,7 +227,7 @@ my_list = ['apples', 'bananas', 'peaches']
 
 self.nlg_enum(
   my_list,
-  IteratorConstructor(max_elem=2, nb_elem_bullet=2, begin_w='Fruits I like :', end_w='Delicious, right ?', end_of_bullet=',', end_of_last_bullet='.')
+  max_elem=2, nb_elem_bullet=2, begin_w='Fruits I like :', end_w='Delicious, right ?', end_of_bullet=',', end_of_last_bullet='.'
 )
 """
 Fruits I like :
@@ -233,7 +242,7 @@ self.nlg_enum([self.free_text(
   fruit,
   self.nlg_syn('so', '') + ' ' + self.nlg_syn('succulent', 'tasty')
 ) for fruit in my_list],
-  IteratorConstructor(begin_w='I find', end_w='.')
+  begin_w='I find', end_w='.'
 )
 """
 One of the following:
