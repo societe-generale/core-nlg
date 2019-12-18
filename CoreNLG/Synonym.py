@@ -29,7 +29,7 @@ class Synonym:
         keyval_context = self._keyvals.keyval_context
 
         # unpacking arguments if only one element
-        if len(words) == 1 and isinstance(words, list):
+        if len(words) == 1 and isinstance(words[0], list):
             words = words[0]
 
         for word in words:
