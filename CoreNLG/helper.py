@@ -465,7 +465,7 @@ class NlgTools:
         tmp_keyvals = {}
 
         # unpacking arguments if only one element
-        if len(words) == 1:
+        if len(words) == 1 and type(words[0]) is list:
             words = words[0]
 
         for word in words:
