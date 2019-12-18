@@ -9,7 +9,7 @@ import functools
 from lxml import html
 
 from CoreNLG import Errors
-from CoreNLG.PredefObjects import interpretable_char_reverse
+from CoreNLG.NoInterpret import interpretable_char_reverse
 
 
 def handle_capitalize(splitters, *args):

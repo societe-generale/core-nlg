@@ -5,10 +5,9 @@ created on 21/02/2019 17:27
 """
 
 import lxml
-import os
 from lxml.html import builder
 
-from CoreNLG.helper import NlgTools
+from CoreNLG.NlgTools import NlgTools
 
 
 class Datas:
@@ -28,7 +27,7 @@ class Datas:
 
 class Document:
     def __init__(
-            self, datas, title="", log_level="ERROR", css_path="css/styles.css", lang="fr", freeze=False
+            self, datas, title="", css_path="css/styles.css", lang="fr", freeze=False
     ):
         """
         Initializing thanks to a JSON (datas)
@@ -37,7 +36,6 @@ class Document:
         self.__lang = lang
         self.__freeze = freeze
         self.datas = datas
-        self.log_level = log_level
         self.__sections = []
         self._html = builder.HTML(
             builder.HEAD(
@@ -66,7 +64,7 @@ class Document:
     def new_section(self, html_elem="div", html_elem_attr=None):
         """Creating a new section with a dictionary of data"""
         section = Section(
-            self.datas, self.log_level, html_elem, html_elem_attr, self.__lang, self.__freeze
+            self.datas, html_elem, html_elem_attr, self.__lang, self.__freeze
         )
         self.__sections.append(section)
         return section
@@ -106,10 +104,10 @@ class Document:
 
 
 class Section:
-    def __init__(self, datas, log_level, html_elem, html_elem_attr, lang, freeze):
+    def __init__(self, datas, html_elem, html_elem_attr, lang, freeze):
         """A section contains a dictionary of data, a writer using NlgTools, and a text"""
         self.__dict__ = datas.__dict__.copy()
-        self.__nlg = NlgTools(html_elem, html_elem_attr, log_level=log_level, lang=lang, freeze=freeze)
+        self.__nlg = NlgTools(html_elem, html_elem_attr, lang=lang, freeze=freeze)
         self.__text = list()
 
     def __str__(self):
@@ -140,22 +138,22 @@ class Section:
         self.__text = list()
 
     @property
-    def tools(self):
+    def tools(self) -> NlgTools():
         return self.__nlg
 
 
 class TextClass:
     def __init__(self, section):
         self.section = section
-        self.nlg = self.section.tools
-        self.nlg_tags = self.section.tools.add_tag
-        self.nlg_num = self.section.tools.number
-        self.nlg_syn = self.section.tools.synonym
-        self.nlg_iter = self.section.tools.iter_elems
-        self.nlg_enum = self.section.tools.enum
-        self.no_interpret = self.section.tools.no_interpret
-        self.free_text = self.section.tools.free_text
-        self.post_eval = self.section.tools.post_eval
+        self.nlg: NlgTools = self.section.tools
+        self.nlg_tags = self.nlg.add_tag
+        self.nlg_num = self.nlg.nlg_num
+        self.nlg_syn = self.nlg.nlg_syn
+        self.nlg_iter = self.nlg.enum
+        self.nlg_enum = self.nlg.enum
+        self.no_interpret = self.nlg.no_interpret
+        self.free_text = self.nlg.free_text
+        self.post_eval = self.nlg.post_eval
 
     def __getattr__(self, name):
         try:

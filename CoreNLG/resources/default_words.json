@@ -1,10 +1,23 @@
 {
   "lang": {
     "fr": {
-      "last_sep": "et"
+      "iter_elems": {
+        "sep": ",",
+        "last_sep": "et"
+      },
+      "numbers": {
+        "sep": ",",
+        "mile_sep": " "
+      }
     },
     "en": {
-      "last_sep": "and"
+      "iter_elems": {
+        "last_sep": "and"
+      },
+      "numbers": {
+        "sep": ".",
+        "mile_sep": ","
+      }
     }
   }
 }
