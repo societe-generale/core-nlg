@@ -27,7 +27,7 @@ class Datas:
 
 class Document:
     def __init__(
-            self, datas, title="", log_level="ERROR", css_path="css/styles.css", lang="fr", freeze=False
+            self, datas, title="", css_path="css/styles.css", lang="fr", freeze=False
     ):
         """
         Initializing thanks to a JSON (datas)
@@ -36,7 +36,6 @@ class Document:
         self.__lang = lang
         self.__freeze = freeze
         self.datas = datas
-        self.log_level = log_level
         self.__sections = []
         self._html = builder.HTML(
             builder.HEAD(
@@ -65,7 +64,7 @@ class Document:
     def new_section(self, html_elem="div", html_elem_attr=None):
         """Creating a new section with a dictionary of data"""
         section = Section(
-            self.datas, self.log_level, html_elem, html_elem_attr, self.__lang, self.__freeze
+            self.datas, html_elem, html_elem_attr, self.__lang, self.__freeze
         )
         self.__sections.append(section)
         return section
@@ -105,10 +104,10 @@ class Document:
 
 
 class Section:
-    def __init__(self, datas, log_level, html_elem, html_elem_attr, lang, freeze):
+    def __init__(self, datas, html_elem, html_elem_attr, lang, freeze):
         """A section contains a dictionary of data, a writer using NlgTools, and a text"""
         self.__dict__ = datas.__dict__.copy()
-        self.__nlg = NlgTools(html_elem, html_elem_attr, log_level=log_level, lang=lang, freeze=freeze)
+        self.__nlg = NlgTools(html_elem, html_elem_attr, lang=lang, freeze=freeze)
         self.__text = list()
 
     def __str__(self):

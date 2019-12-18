@@ -17,7 +17,6 @@ from CoreNLG.decorators import beautifier
 from CoreNLG.resources.contraction import contraction
 
 from CoreNLG.AddTag import AddTag
-from CoreNLG.Logger import Logger
 from CoreNLG.NoInterpret import NoInterpret
 from CoreNLG.Number import Number
 from CoreNLG.tools import read_json_resource, get_resource_lang, read_default_words, handle_string_to_html
@@ -28,7 +27,6 @@ class NlgTools:
             self,
             html_elem="div",
             html_elem_attr=None,
-            log_level="ERROR",
             lang="fr",
             freeze=False,
     ):
@@ -36,10 +34,6 @@ class NlgTools:
         self.__html_elem_wrap(html_elem, html_elem_attr)
         self._lang = lang
         self._is_beautiful = False
-
-        self._log_level = log_level
-        log = Logger(os.path.join(os.getcwd(), "logs"), self._log_level)
-        self.logger = log.logger
 
         self._ponct = None
         self._default_words = None
@@ -110,15 +104,11 @@ class NlgTools:
 
     def __get_resources(self):
         resource_path = os.path.join(os.path.dirname(__file__), "resources")
-        self._ponct = read_json_resource(os.path.join(resource_path, "ponctuation.json"),
-                                         self._lang,
-                                         self.logger)
+        self._ponct = read_json_resource(os.path.join(resource_path, "ponctuation.json"), self._lang)
 
-        self._default_words = read_json_resource(os.path.join(resource_path, "default_words.json"),
-                                                 self._lang,
-                                                 self.logger)
+        self._default_words = read_json_resource(os.path.join(resource_path, "default_words.json"), self._lang)
 
-        self._contract = get_resource_lang(contraction, self._lang, self.logger)
+        self._contract = get_resource_lang(contraction, self._lang)
 
     def __str__(self):
         self.__beautifier()

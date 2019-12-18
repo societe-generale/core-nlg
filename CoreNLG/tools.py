@@ -76,17 +76,16 @@ def take_second_arg_if_first_none(arg, class_arg):
     return class_arg if arg is None else arg
 
 
-def read_json_resource(path, lang, logger):
+def read_json_resource(path, lang):
     with open(os.path.join(path)) as f:
-        return get_resource_lang(json.load(f)["lang"], lang, logger)
+        return get_resource_lang(json.load(f)["lang"], lang)
 
 
-def get_resource_lang(resource, lang, logger):
+def get_resource_lang(resource, lang):
     try:
         return resource[lang]
     except KeyError:
-        logger.error("lang \"{}\" doesn't exist in ponctuation resource".format(lang))
-        exit(1)
+        raise Exception("lang \"{}\" doesn't exist in ponctuation resource".format(lang))
 
 
 def read_default_words(resource, *args, default=""):
