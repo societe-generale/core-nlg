@@ -32,7 +32,7 @@ Auto-agreement tools based on extra-resources are <b>not provided</b> in this li
 
 You can chose a language (French or English) and typography will be automatically handled based on it.\
 For example:\
-In French 'Ma liste d'�l�ments:' becomes "Ma liste d'�l�ments :".\
+In French 'Ma liste d'éléments:' becomes "Ma liste d'éléments :".\
 In English "My list of items :" will become "My list of items:"
 
 A period will always be followed by a capitalized word.
@@ -42,11 +42,11 @@ A period will always be followed by a capitalized word.
 Contractions are automatically handled based on the selected language (French or English).
 
 ```python
-word_1 = 'le d�passement'
+word_1 = 'le dépassement'
 word_2 = 'les hausses'
 
-self.free_text('� cause de', word_1) # "� cause du d�passement"
-self.free_text('� cause de', word_2) # "� cause des hausses"
+self.free_text('é cause de', word_1) # "é cause du dépassement"
+self.free_text('é cause de', word_2) # "é cause des hausses"
 ```
 
 ## CoreNLG functions
