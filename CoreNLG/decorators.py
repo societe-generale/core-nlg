@@ -156,6 +156,14 @@ def space_before_after(text, chars):
     return text
 
 
+def no_space(text, chars):
+    """"""
+    for char in chars:
+        text = text.replace(" " + char, "" + char)
+        text = text.replace(char + " ", char + "")
+    return text
+
+
 def handle_dots(text):
     elems = text.split(".")
     new_list = list()
@@ -226,6 +234,7 @@ def beautifier(f_ret, ponct, contract):
     f_ret = space_after(f_ret, copy.copy(ponct["space_after"]))
     f_ret = space_before(f_ret, copy.copy(ponct["space_before"]))
     f_ret = space_before_after(f_ret, copy.copy(ponct["space_before_and_after"]))
+    f_ret = no_space(f_ret, copy.copy(ponct["no_spaces"]))
     f_ret = handle_dots(f_ret)
     f_ret = handle_spaces(f_ret)
     for key, value in interpretable_char_reverse.items():
