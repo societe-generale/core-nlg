@@ -45,8 +45,8 @@ Contractions are automatically handled based on the selected language (French or
 word_1 = 'le dépassement'
 word_2 = 'les hausses'
 
-self.free_text('é cause de', word_1) # "é cause du dépassement"
-self.free_text('é cause de', word_2) # "é cause des hausses"
+self.free_text('À cause de', word_1) # "À cause du dépassement"
+self.free_text('À cause de', word_2) # "À cause des hausses"
 ```
 
 ## CoreNLG functions
