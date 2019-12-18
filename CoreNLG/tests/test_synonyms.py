@@ -178,4 +178,21 @@ class TestSynonyms:
         section.write()
         assert section.html.xpath('//div')[0].text_content() == expected
 
+    @pytest.mark.parametrize(
+        "input, expected",
+        [
+            (("test", "TEST_KEYVAL"), "Test post test post test post test post"),
+            ("test", "Test test test test")
+        ],
+    )
+    def test_keyval_for_each(self, input, expected):
+        datas = Datas({})
+        doc = Document(datas, lang="fr")
+        section = doc.new_section()
+        for i in range(4):
+            section.text = section.tools.nlg_syn(input)
+            section.text = section.tools.post_eval("TEST_KEYVAL", "post", "")
+        section.write()
+        assert section.html.xpath('//div')[0].text_content() == expected
+
 
