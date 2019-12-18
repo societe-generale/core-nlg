@@ -89,13 +89,12 @@ def get_resource_lang(resource, lang):
 
 
 def read_default_words(resource, *args, default=""):
-    elem = None
     for a in args:
         try:
-            elem = resource[a]
+            resource = resource[a]
         except KeyError:
             return default
-    return elem if elem is not None else default
+    return resource if resource is not None else default
 
 
 def temporary_override_args(f):
