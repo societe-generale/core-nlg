@@ -478,28 +478,28 @@ class NlgTools:
             else:
                 s_words.append(word)
 
-        if self._freeze_syno:
-            return s_words[0]
+        if self._freeze_syno or mode == 'random':
+            syno_to_display = s_words[0] if self._freeze_syno else random.choice(s_words)
+            if syno_to_display in tmp_keyvals:
+                self.active_keyvals.append(tmp_keyvals[syno_to_display])
+            return syno_to_display
         else:
-            if mode == "random":
-                return random.choice(s_words)
-            else:
-                pattern = "*" + str(self._smart_syno_lvl + 1) + "*"
+            pattern = "*" + str(self._smart_syno_lvl + 1) + "*"
 
-                self.keyval_context[pattern] = tmp_keyvals
+            self.keyval_context[pattern] = tmp_keyvals
 
-                for pat in [p for word in s_words for p in self._synos_by_pattern if p in word]:
-                    if pat in self.keyval_context:
-                        self.keyval_context[pattern].update(self.keyval_context[pat])
-                        del self.keyval_context[pat]
+            for pat in [p for word in s_words for p in self._synos_by_pattern if p in word]:
+                if pat in self.keyval_context:
+                    self.keyval_context[pattern].update(self.keyval_context[pat])
+                    del self.keyval_context[pat]
 
-                if not self.keyval_context[pattern]:
-                    del self.keyval_context[pattern]
+            if not self.keyval_context[pattern]:
+                del self.keyval_context[pattern]
 
-                self._smart_syno_lvl += 1
-                self._synos_by_pattern[pattern] = s_words
+            self._smart_syno_lvl += 1
+            self._synos_by_pattern[pattern] = s_words
 
-                return pattern
+            return pattern
 
     def __handle_synonym(self, pattern_to_evaluate):
         tmp_sbp = self._synos_by_pattern.copy()
@@ -558,9 +558,13 @@ class NlgTools:
 
     @debug_printer
     def post_eval(self, keyval, if_active='', if_inactive='', clean=False):
-        pattern = '~' + str(len(self.post_evals) + 1) + '~'
-        self.post_evals[pattern] = (keyval, if_active, if_inactive, clean)
-        return pattern
+        # in freeze or random mode, keyval has already be activated
+        if keyval in self.active_keyvals:
+            return self.__handle_post_eval((keyval, if_active, if_inactive, clean))
+        else:
+            pattern = '~' + str(len(self.post_evals) + 1) + '~'
+            self.post_evals[pattern] = (keyval, if_active, if_inactive, clean)
+            return pattern
 
     def __handle_post_eval(self, args):
         keyval, if_active, if_inactive, clean = args
