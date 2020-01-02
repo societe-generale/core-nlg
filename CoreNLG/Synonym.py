@@ -42,28 +42,28 @@ class Synonym:
             else:
                 s_words.append(word)
 
-        if self._freeze_syno:
-            return s_words[0]
+        if self._freeze_syno or mode == 'random':
+            syno_to_display = s_words[0] if self._freeze_syno else random.choice(s_words)
+            if syno_to_display in tmp_keyvals:
+                self._keyvals.active_keyvals.append(tmp_keyvals[syno_to_display])
+            return syno_to_display
         else:
-            if mode == "random":
-                return random.choice(s_words)
-            else:
-                pattern = "*" + str(self.smart_syno_lvl + 1) + "*"
+            pattern = "*" + str(self.smart_syno_lvl + 1) + "*"
 
-                keyval_context[pattern] = tmp_keyvals
+            keyval_context[pattern] = tmp_keyvals
 
-                for pat in [p for word in s_words for p in self.synos_by_pattern if p in word]:
-                    if pat in keyval_context:
-                        keyval_context[pattern].update(keyval_context[pat])
-                        del keyval_context[pat]
+            for pat in [p for word in s_words for p in self.synos_by_pattern if p in word]:
+                if pat in keyval_context:
+                    keyval_context[pattern].update(keyval_context[pat])
+                    del keyval_context[pat]
 
-                if not keyval_context[pattern]:
-                    del keyval_context[pattern]
+            if not keyval_context[pattern]:
+                del keyval_context[pattern]
 
-                self.smart_syno_lvl += 1
-                self.synos_by_pattern[pattern] = s_words
+            self.smart_syno_lvl += 1
+            self.synos_by_pattern[pattern] = s_words
 
-                return pattern
+            return pattern
 
     def __handle_synonym(self, pattern_to_evaluate):
         tmp_sbp = self.synos_by_pattern.copy()
