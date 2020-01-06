@@ -77,7 +77,7 @@ def take_second_arg_if_first_none(arg, class_arg):
 
 
 def read_json_resource(path, lang):
-    with open(os.path.join(path)) as f:
+    with open(os.path.join(path), encoding="utf-8") as f:
         return get_resource_lang(json.load(f)["lang"], lang)
 
 
