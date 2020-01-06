@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="CoreNLG",
-    version="2.0.4",
+    version="2.0.5",
     description="",
     long_description=long_description,
     long_description_content_type="text/markdown",
