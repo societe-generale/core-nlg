@@ -106,11 +106,15 @@ def contraction(splitters, current, contract, *text):
                                 replace = w1
                             if len(comp_w1) == 1 and w1[0].lower() == comp_w1:
                                 is_replaced = True
+                                if w[0].isupper():
+                                    rep = rep[0].upper() + "".join(rep[1:])
                                 new_sent.append(rep + replace[0] + "".join(w1[1:]))
                                 splitted.pop(i)
                                 break
                             elif w1.lower() == comp_w1:
                                 is_replaced = True
+                                if w[0].isupper():
+                                    rep = rep[0].upper() + "".join(rep[1:])
                                 new_sent.append(rep + replace)
                                 splitted.pop(i)
                                 break
