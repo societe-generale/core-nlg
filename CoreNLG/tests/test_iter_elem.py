@@ -11,7 +11,7 @@ from CoreNLG.tests.fixtures import list_elem, long_list_elem, long_list_with_emp
 
 class TestIterElem:
 
-    nlg = NlgTools()
+    nlg = NlgTools(lang="en")
     iter_elems = nlg.enum
 
     @pytest.mark.parametrize(
@@ -139,7 +139,7 @@ class TestIterElem:
 class TestIterElemPostTreatment:
     def test_single_sentence_with_post_treatment(self, list_elem):
         text = iter_elem_with_post_treatment_fr([[e for e in list_elem]])
-        assert text == "Elem1, elem2 and elem3"
+        assert text == "Elem1, elem2 et elem3"
 
     def test_bullet_points_with_post_treatment(self, list_elem):
         text = iter_elem_with_post_treatment_fr([[e for e in list_elem]], nb_elem_bullet=0)

@@ -312,7 +312,7 @@ class TestTextClass:
         document, section = create_empty_section()
         text_class = TextClass(section)
         text_class.text = text_class.nlg_iter([["iter", "elem"]])
-        assert str(text_class) == "iter and elem"
+        assert str(text_class) == "iter et elem"
 
     def test_text_class_no_interpret(self):
         document, section = create_empty_section()

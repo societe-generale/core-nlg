@@ -10,7 +10,7 @@ from CoreNLG.NlgTools import NlgTools
 
 class TestAddTags:
 
-    nlg = NlgTools()
+    nlg = NlgTools(lang="en")
     add_tag = nlg.add_tag
     iter_elems = nlg.enum
 
