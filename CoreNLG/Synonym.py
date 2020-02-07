@@ -155,17 +155,14 @@ class Synonym:
                 split_words = words.split() if words != '' else ['']
 
                 for word in split_words:
-                    is_significant_word = len(word) > 2 or word == ''
-                    ratio = difflib.SequenceMatcher(None, s_word, word).quick_ratio() if is_significant_word else 0
-
-                    if ratio > 0.7:
+                    if difflib.SequenceMatcher(None, s_word, word).quick_ratio() > 0.7:
                         found = True
                         occ += 1
 
             last_pos = pos if found else last_pos
             pos -= 1
 
-        if len([word for word in words.split() if len(word) > 2]) > 1:
+        if len([word for word in words.split()]) > 1:
             occ /= len(words.split()) / 2
 
         dist = last_pos
@@ -195,55 +192,37 @@ class Synonym:
         self._text_pos += nb_words
 
     def handle_patterns(self, arg):
-        done = False
+        synonym_pattern = re.compile('\*\d+\*')
+        eval_pattern = re.compile('~\d+~')
+
         post_evals = self._keyvals.post_evals
+
+        done = False
         while not done:
-            first_syno, pos_first_syno = None, None
-            first_eval, pos_first_eval = None, None
+            first_syno, pos_first_syno = None, len(arg)
+            first_eval, pos_first_eval = None, len(arg)
 
-            for pattern in self.synos_by_pattern:
-                pos = arg.find(pattern)
-                if pos != -1:
-                    first_syno = pattern
-                    pos_first_syno = pos
-                    break
+            search = synonym_pattern.search(arg)
+            if search != None:
+                first_syno = search.group()
+                pos_first_syno = search.start()
 
-            for pattern in post_evals:
-                pos = arg.find(pattern)
-                if pos != -1:
-                    first_eval = pattern
-                    pos_first_eval = pos
-                    break
+            search = eval_pattern.search(arg)
+            if search != None:
+                first_eval = search.group()
+                pos_first_eval = search.start()
 
-            is_syno = False
-            first = None
-
-            if first_syno and first_eval:
-                if pos_first_syno < pos_first_eval:
-                    first = first_syno
-                    is_syno = True
-                else:
-                    first = first_eval
-                    is_syno = False
-            elif first_syno:
-                first = first_syno
-                is_syno = True
-            elif first_eval:
-                first = first_eval
-                is_syno = False
-
-            if first:
-                if is_syno:
-                    pos_end_pattern = pos_first_syno + len(first_syno)
-                    text_to_analyze = arg[:pos_end_pattern]
-                    following_text = arg[pos_end_pattern:]
-                    analyzed_text = text_to_analyze.replace(first_syno, self.__handle_synonym(first_syno))
-                    arg = analyzed_text + following_text
-                    del self.synos_by_pattern[first_syno]
-                else:
-                    arg = arg.replace(first_eval, self._keyvals.handle_post_eval(post_evals[first_eval]))
-                    del post_evals[first_eval]
-            else:
+            if pos_first_syno == pos_first_eval == len(arg):
                 done = True
+            elif pos_first_syno < pos_first_eval:
+                pos_end_pattern = pos_first_syno + len(first_syno)
+                text_to_analyze = arg[:pos_end_pattern]
+                following_text = arg[pos_end_pattern:]
+                analyzed_text = text_to_analyze.replace(first_syno, self.__handle_synonym(first_syno))
+                arg = analyzed_text + following_text
+                del self.synos_by_pattern[first_syno]
+            else:
+                arg = arg.replace(first_eval, self._keyvals._keyvals__handle_post_eval(post_evals[first_eval]))
+                del post_evals[first_eval]
 
         return arg
