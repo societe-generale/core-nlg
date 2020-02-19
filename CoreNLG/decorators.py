@@ -5,6 +5,7 @@ created on 18/12/2018 11:35
 """
 import copy
 import functools
+import re
 
 from lxml import html
 
@@ -13,53 +14,20 @@ from CoreNLG.NoInterpret import interpretable_char_reverse
 
 
 def handle_capitalize(splitters, *args):
-    """This function capitalizes an HTML string thanks to characters passed as argument.
-    'splitters' are the capitalizing characters; '*args' is the HTML string at the first call of the function
-    The function is divided into two parts:
-     - splitting the string through recursive calls, looping through the splitters;
-     - removing the starting characters of the elements, if these are space, carriage returns, or HTML containers.
-     Eventually, the elements are joined and if characters have been removed, then we uppercase the first character.
-     It returns a list of HTML elements alternating with splitters."""
-    splitted = list()
-    if len(splitters) > 0:
-        for arg in args:
-            for elem in arg.split(splitters[0]):
-                if len(elem) > 0 and elem[-1] == " ":
-                    elem = elem[:-1]
-                splitted.append(elem)
-                splitted.append(splitters[0])
-            splitted.pop(
-                -1
-            )  # Removes the last capitalizing character we added the line before
-        splitters.pop(0)
-        splitted = handle_capitalize(splitters, *splitted)
-    else:
-        for arg in args:
-            if len(arg) > 0:
-                saved_char = ""
-                ignored_char = True
-                while ignored_char:
-                    ignored_char = False
-                    if arg[0] in [" ", "\n"]:
-                        ignored_char = True
-                        saved_char += arg[0]
-                        arg = arg[1:]
 
-                    if len(arg) > 0 and arg[0] == "<":
-                        ignored_char = True
-                        while arg[0] != ">":
-                            saved_char += arg[0]
-                            arg = arg[1:]
-                        saved_char += ">"
-                        arg = arg[1:]
-                    if len(arg) == 0:
-                        break
-                if len(arg) == 0:
-                    arg = saved_char
-                else:
-                    arg = "".join([saved_char, arg[0].upper(), arg[1:]])
-                splitted.append(arg)
-    return splitted
+    capitalized_text = list()
+    for i, a in enumerate(args):
+        new_string = a
+        matchs = list()
+        if i == 0:
+            match = re.search(r"(^<[^>]*>)(<[^>]*>)*( *\n*)*[a-z]", new_string)
+            if match is not None:
+                matchs.append(match)
+        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*(<[^>]*>)*( *\n*)*[a-z]"]), new_string)
+        for match in matchs:
+            new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1:].capitalize()
+        capitalized_text.append(new_string)
+    return capitalized_text
 
 
 def contraction(splitters, current, contract, *text):
