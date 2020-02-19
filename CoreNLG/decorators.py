@@ -25,7 +25,7 @@ def handle_capitalize(splitters, *args):
                 matchs.append(match)
         matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*(<[^>]*>)*( *\n*)*[a-z]"]), new_string)
         for match in matchs:
-            new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1:].capitalize()
+            new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1].upper() + new_string[match.span()[1]:]
         capitalized_text.append(new_string)
     return capitalized_text
 
