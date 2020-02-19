@@ -20,10 +20,10 @@ def handle_capitalize(splitters, *args):
         new_string = a
         matchs = list()
         if i == 0:
-            match = re.search(r"(^<[^>]*>)(<[^>]*>)*( *\n*)*[a-z]", new_string)
+            match = re.search("".join([r"(^<[^>]*>)", balise_regex(), r"*( *\n*)*[a-z]"]), new_string)
             if match is not None:
                 matchs.append(match)
-        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*(<[^>]*>)*( *\n*)*[a-z]"]), new_string)
+        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*", balise_regex(), "*( *\n*)*[a-z]"]), new_string)
         for match in matchs:
             new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1].upper() + new_string[match.span()[1]:]
         capitalized_text.append(new_string)
@@ -98,90 +98,93 @@ def contraction(splitters, current, contract, *text):
         return "".join(new_sent)
 
 
-def space_after(text, chars):
-    """Takes as parameters the HTML string ('text') and the characters to be considered for spaces handling ('chars').
-    It adds a space after and removes a space before when 'chars' are encountered while parsing 'text'.
-    The function eventually suppresses unneeded whitespaces, thanks to 'handle_spaces'."""
-    " ".join(text.split())  # Useless
-    for char in chars:
-        text = text.replace(char, char + " ")
-        text = text.replace(" " + char, char)
-        text = handle_spaces(text)
-    return text
-
-
-def space_before(text, chars):
-    """Cf. 'space_after.__doc__', as the arguments and the algorithm are the same.
-    The difference is that it removes spaces placed after a 'chars' character, and adds spaces before if there is none."""
-    " ".join(text.split())  # Useless
-    for char in chars:
-        text = text.replace(char, " " + char)
-        text = text.replace(char + " ", char)
-        text = handle_spaces(text)
-    return text
-
-
-def space_before_after(text, chars):
-    """"""
-    for char in chars:
-        text = text.replace(char, " " + char + " ")
-    return text
-
-
-def no_space(text, chars):
-    """"""
-    for char in chars:
-        text = text.replace(" " + char, "" + char)
-        text = text.replace(char + " ", char + "")
-    return text
-
-
 def handle_dots(text):
-    matchs = re.finditer(r"\.+((<[^>]*>)*([^a-zA-Z0-1])*)*\.+", text)
-    nb_remove = 0
+    matchs = re.finditer("".join([r"\.+(", balise_regex(), r"*([^a-zA-Z0-1])*)*\.+"]), text)
+    nb_removed = 0
     re_check = False
     for match in matchs:
-        nb_dots = len(re.findall("\.", match.group()))
+        nb_dots = len(re.findall(r"\.", match.group()))
         if nb_dots == 2 or nb_dots > 3:
             if nb_dots > 3:
                 re_check = True
-            text = text[:match.span()[1] - 1 - nb_remove] + text[match.span()[1] - nb_remove:]
-            nb_remove += 1
+            text = text[:match.span()[1] - 1 - nb_removed] + text[match.span()[1] - nb_removed:]
+            nb_removed += 1
         elif nb_dots == 3:
-            cleaned_dots = match.group().replace(" ", "")
-            if not match.group() == cleaned_dots:
-                text = text[:match.span()[0] - nb_remove] + cleaned_dots + text[match.span()[1] - nb_remove:]
-                nb_remove += len(match.group()) - len(cleaned_dots)
+            text, nb_removed = remove_match_spaces(text, match, nb_removed)
     if re_check:
         text = handle_dots(text)
     return text
 
 
-def handle_spaces(text):
-    """Chained whitespaces are removed and replaced by a single space.
-    Exception when between two containers separated by whitespaces: there is no space.
-    Eg. '..._<html>_<head>_...' => '..._<html><head>_...' """
-    ret_splitted = text.split(" ")
+def remove_spaces_before(text, char, keep_one=False):
+    nb_removed = 0
+    for match in re.finditer("".join([space_regex(), "+", "\\", char]), text):
+        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
+    return text
 
-    # ret_splitted = [e for e in ret_splitted if e not in ('', ' ')]
-    ret = list()
-    for i in range(len(ret_splitted)):
-        e = ret_splitted[i]
-        if len(e) > 0:
-            if e[0] == "<" and e[-1] == ">" and "<" not in e[1:]:
-                if len(ret) > 0:
-                    last = ret[-1]
-                    ret.pop(-1)
-                    ret.append("".join([last, e]))
-                else:
-                    ret.append(e)
-            else:
-                ret.append(e)
-    return " ".join(ret)
+
+def remove_spaces_after(text, char, keep_one=False):
+    nb_removed = 0
+    for match in re.finditer("".join(["\\", char, space_regex(), "+"]), text):
+        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
+    return text
+
+
+def remove_match_spaces(text, match, nb_removed, keep_one=False):
+    cleaned = match.group()
+    if keep_one:
+        count = len(re.findall(" ", cleaned)) - 1
+        if not count == 0:
+            cleaned = re.sub(" ", "", cleaned, count=len(re.findall(" ", cleaned)) - 1)
+    else:
+        cleaned = re.sub(" ", "", cleaned)
+    if not match.group() == cleaned:
+        text = text[:match.span()[0] - nb_removed] + cleaned + text[match.span()[1] - nb_removed:]
+        nb_removed += len(match.group()) - len(cleaned)
+
+    return text, nb_removed
+
+
+def handle_special_spaces(text, ponct):
+    for char in ponct["space_after"]:
+        text = text.replace(char, "".join([char, " "]))
+        text = remove_spaces_before(text, char)
+        text = remove_spaces_after(text, char, True)
+
+    for char in ponct["space_before"]:
+        text = text.replace(char, "".join([" ", char]))
+        text = remove_spaces_before(text, char, True)
+        text = remove_spaces_after(text, char)
+
+    for char in ponct["space_before_and_after"]:
+        text = text.replace(char, "".join([" ", char, " "]))
+        text = remove_spaces_before(text, char, True)
+        text = remove_spaces_after(text, char, True)
+
+    for char in ponct["no_spaces"]:
+        text = remove_spaces_before(text, char)
+        text = remove_spaces_after(text, char)
+    return text
+
+
+def handle_redondant_spaces(text):
+    nb_removed = 0
+    for match in re.finditer("".join([space_regex(), "+"]), text):
+        text, nb_removed = remove_match_spaces(text, match, nb_removed, True)
+
+    text = re.sub(r" (<[^>]*>)*$", "", text)
+    return text
+
+
+def space_regex():
+    return "".join(["( +(", balise_regex(), "*)*)"])
+
+
+def balise_regex():
+    return "(<[^>]*>)"
 
 
 def beautifier(f_ret, ponct, contract):
-    f_ret = handle_spaces(f_ret)
     ignore_chars = [
         " ",
         ",",
@@ -202,12 +205,9 @@ def beautifier(f_ret, ponct, contract):
         ignore_chars, 0, contract, contraction(ignore_chars, 0, contract, f_ret)
     )
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
-    f_ret = space_after(f_ret, copy.copy(ponct["space_after"]))
-    f_ret = space_before(f_ret, copy.copy(ponct["space_before"]))
-    f_ret = space_before_after(f_ret, copy.copy(ponct["space_before_and_after"]))
-    f_ret = no_space(f_ret, copy.copy(ponct["no_spaces"]))
+    f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)
-    f_ret = handle_spaces(f_ret)
+    f_ret = handle_redondant_spaces(f_ret)
     for key, value in interpretable_char_reverse.items():
         f_ret = f_ret.replace("#" + key + "#", value)
 
