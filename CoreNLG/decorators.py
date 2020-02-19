@@ -20,7 +20,7 @@ def handle_capitalize(splitters, *args):
         new_string = a
         matchs = list()
         if i == 0:
-            match = re.search("".join([r"(^<[^>]*>)", balise_regex(), r"*( *\n*)*[a-z]"]), new_string)
+            match = re.search("".join([r"^", balise_regex(), r"*( *\n*)*[a-z]"]), new_string)
             if match is not None:
                 matchs.append(match)
         matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*", balise_regex(), "*( *\n*)*[a-z]"]), new_string)
@@ -172,7 +172,7 @@ def handle_redondant_spaces(text):
     for match in re.finditer("".join([space_regex(), "+"]), text):
         text, nb_removed = remove_match_spaces(text, match, nb_removed, True)
 
-    text = re.sub(r" (<[^>]*>)*$", "", text)
+    text = re.sub("".join([r" ", balise_regex(), "*$"]), "", text)
     return text
 
 
