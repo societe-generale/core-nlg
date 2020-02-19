@@ -137,25 +137,24 @@ def no_space(text, chars):
 
 
 def handle_dots(text):
-    elems = text.split(".")
-    new_list = list()
-    i = 0
-    while i < len(elems):
-        if elems[i] == " ":
-            dots = 2
-            while i < len(elems):
-                i += 1
-                if elems[i] == " ":
-                    dots += 1
-                else:
-                    if dots >= 3:
-                        new_list.append(".")
-                    new_list.append(elems[i])
-                    break
-        else:
-            new_list.append(elems[i])
-        i += 1
-    return ".".join(new_list)
+    matchs = re.finditer(r"\.+((<[^>]*>)*([^a-zA-Z0-1])*)*\.+", text)
+    nb_remove = 0
+    re_check = False
+    for match in matchs:
+        nb_dots = len(re.findall("\.", match.group()))
+        if nb_dots == 2 or nb_dots > 3:
+            if nb_dots > 3:
+                re_check = True
+            text = text[:match.span()[1] - 1 - nb_remove] + text[match.span()[1] - nb_remove:]
+            nb_remove += 1
+        elif nb_dots == 3:
+            cleaned_dots = match.group().replace(" ", "")
+            if not match.group() == cleaned_dots:
+                text = text[:match.span()[0] - nb_remove] + cleaned_dots + text[match.span()[1] - nb_remove:]
+                nb_remove += len(match.group()) - len(cleaned_dots)
+    if re_check:
+        text = handle_dots(text)
+    return text
 
 
 def handle_spaces(text):
