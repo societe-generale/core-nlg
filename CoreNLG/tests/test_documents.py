@@ -185,15 +185,15 @@ class TestSection:
 
     def test_empty_section(self):
         document, section = create_empty_section()
-        assert str(section) == "<div></div>\n"
+        assert str(section) == "<div></div>"
 
     @pytest.mark.parametrize(
         "input, expected",
         [
-            ("div", "<div></div>\n"),
-            ("p", "<p></p>\n"),
-            ("span", "<span></span>\n"),
-            ("a", "<a></a>\n")
+            ("div", "<div></div>"),
+            ("p", "<p></p>"),
+            ("span", "<span></span>"),
+            ("a", "<a></a>")
         ],
     )
     def test_empty_section_html_element(self, input, expected):
@@ -201,20 +201,15 @@ class TestSection:
         section = document.new_section(html_elem=input)
         assert str(section) == expected
 
-    def test_wrong_html_element(self):
-        document = create_empty_doc()
-        with pytest.raises(AttributeError):
-            document.new_section(html_elem="wrong")
-
     @pytest.mark.parametrize(
         "input, expected",
         [
-            ({}, "<div></div>\n"),
-            ({"id": "test_id"}, "<div id=\"test_id\"></div>\n"),
-            ({"class": "test_class"}, "<div class=\"test_class\"></div>\n"),
-            ({"any": "test_any"}, "<div any=\"test_any\"></div>\n"),
-            ({"id": "test_id", "class": "test_class", "any": "test_any"},
-             "<div class=\"test_class\" id=\"test_id\" any=\"test_any\"></div>\n")
+            ({}, "<div></div>"),
+            ({"id": "test_id"}, "<div id=\"test_id\"></div>"),
+            ({"class": "test_class"}, "<div class=\"test_class\"></div>"),
+            ({"any": "test_any"}, "<div any=\"test_any\"></div>"),
+            ({"class": "test_class", "id": "test_id", "any": "test_any"},
+             "<div class=\"test_class\" id=\"test_id\" any=\"test_any\"></div>")
         ],
     )
     def test_empty_section_html_attributes(self, input, expected):
@@ -226,18 +221,18 @@ class TestSection:
         document, section = create_empty_section()
         section.text = "test_text"
         section.write()
-        assert str(section) == "<div>Test_text</div>\n"
+        assert str(section) == "<div>Test_text</div>"
 
     def test_get_html_text(self):
         document, section = create_empty_section()
         section.text = "test_text"
-        assert str(section) == "<div></div>\n"
+        assert str(section) == "<div></div>"
 
     def test_get_html_text_write_document(self):
         document, section = create_empty_section()
         section.text = "test_text"
         document.write_section(section)
-        assert str(section) == "<div>Test_text</div>\n"
+        assert str(section) == "<div>Test_text</div>"
 
     def test_get_text(self):
         document, section = create_empty_section()
