@@ -8,7 +8,7 @@ import lxml
 from lxml.html import builder
 from abc import ABCMeta, abstractmethod
 
-from CoreNLG.NlgTools import NlgToolsHtml, AbstractNlgTools, NlgToolsPlain
+from CoreNLG.NlgTools import NlgTools
 
 
 class Datas:
@@ -57,6 +57,9 @@ class AbstractDocument(object, metaclass=ABCMeta):
     def write_section(self, section):
         pass
 
+    def open_in_browser(self):
+        pass
+
 
 class DocumentHtml(AbstractDocument):
     def __init__(self, datas, lang, freeze, title, css_path):
@@ -76,22 +79,28 @@ class DocumentHtml(AbstractDocument):
             self._html, pretty_print=True, encoding="utf-8"
         ).decode("utf-8")
 
+    def __repr__(self):
+        return self._html
+
+    @property
+    def html(self):
+        return self._html
+
     @property
     def api_html(self):
         """Attribute for the HTML string of the document"""
         return lxml.html.tostring(self._html, encoding="utf-8").decode("utf-8")
 
-    def open_in_browser(self):
-        """Saving and opening the document in the browser"""
-        lxml.html.open_in_browser(self._html)
-
     def new_section(self, html_elem="div", html_elem_attr=None):
         """Creating a new section with a dictionary of data"""
         section = SectionHtml(
-            self.datas, html_elem, html_elem_attr, self._lang, self._freeze
+            self.datas, self._lang, self._freeze, html_elem, html_elem_attr
         )
         self._sections.append(section)
         return section
+
+    def open_in_browser(self):
+        lxml.html.open_in_browser(self._html)
 
     def write_section(self, section, parent_elem=None, parent_id=None):
         """
@@ -126,16 +135,16 @@ class DocumentHtml(AbstractDocument):
 class DocumentPlain(AbstractDocument):
     def __init__(self, datas, lang, freeze):
         super().__init__(datas, lang, freeze)
-        self.text = ""
+        self._text = ""
 
-    def __str__(self):
-        return self.text
+    def __repr__(self):
+        return self._text
 
     def write_section(self, section):
         section.write()
-        self.text += str(section)
+        self._text += str(section)
 
-    def new_section(self):
+    def new_section(self, **kwargs):
         """Creating a new section with a dictionary of data"""
         section = SectionPlain(
             self.datas, self._lang, self._freeze
@@ -169,30 +178,27 @@ class AbstractSection(object, metaclass=ABCMeta):
         self._text = list()
 
     @property
-    def tools(self) -> AbstractNlgTools:
+    def tools(self) -> NlgTools:
         return self._nlg
-
-
-class SectionHtml(AbstractSection):
-    def __init__(self, datas, html_elem, html_elem_attr, lang, freeze):
-        super().__init__(datas)
-        self._nlg = NlgToolsHtml(html_elem, html_elem_attr, lang=lang, freeze=freeze)
-
-    def __str__(self):
-        return lxml.html.tostring(
-            self._nlg.html, pretty_print=True, encoding="utf-8"
-        ).decode("utf-8")
 
     @property
     def html(self):
-        """HTML getter"""
         return self._nlg.html
+
+
+class SectionHtml(AbstractSection):
+    def __init__(self, datas, lang, freeze, html_elem="div", html_elem_attr=None):
+        super().__init__(datas)
+        self._nlg = NlgTools(lang, freeze, html_elem, html_elem_attr)
+
+    def __str__(self):
+        return lxml.html.tostring(self._nlg.html, encoding="utf-8").decode("utf-8")
 
 
 class SectionPlain(AbstractSection):
     def __init__(self, datas, lang, freeze):
         super().__init__(datas)
-        self._nlg = NlgToolsPlain(lang=lang, freeze=freeze)
+        self._nlg = NlgTools(lang, freeze)
 
     def __str__(self):
         return self._nlg.text
@@ -201,7 +207,7 @@ class SectionPlain(AbstractSection):
 class TextClass:
     def __init__(self, section):
         self.section = section
-        self.nlg: AbstractNlgTools = self.section.tools
+        self.nlg: NlgTools = self.section.tools
         self.nlg_tags = self.nlg.add_tag
         self.nlg_num = self.nlg.nlg_num
         self.nlg_syn = self.nlg.nlg_syn
