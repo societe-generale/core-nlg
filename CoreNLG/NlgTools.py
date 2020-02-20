@@ -6,7 +6,6 @@ created on 02/12/2019 16:03
 import os
 
 from lxml import html
-from lxml.html import builder
 
 from CoreNLG.FreeText import FreeText
 from CoreNLG.Intensity import Intensity
@@ -19,25 +18,19 @@ from CoreNLG.resources.contraction import contraction
 from CoreNLG.AddTag import AddTag
 from CoreNLG.NoInterpret import NoInterpret
 from CoreNLG.Number import Number
-from CoreNLG.tools import read_json_resource, get_resource_lang, read_default_words, handle_string_to_html
+from CoreNLG.tools import read_json_resource, get_resource_lang, read_default_words
 
 
 class NlgTools:
-    def __init__(
-            self,
-            html_elem="div",
-            html_elem_attr=None,
-            lang="fr",
-            freeze=False,
-    ):
-        self._html = None
-        self.__html_elem_wrap(html_elem, html_elem_attr)
+    def __init__(self, lang="fr", freeze=False, html_elem="div", html_elem_attr=None):
         self._lang = lang
+        self.html_elem = html_elem
+        self.html_elem_attr = html_elem_attr
         self._is_beautiful = False
-
         self._ponct = None
         self._default_words = None
         self._contract = None
+        self._text = ""
         self.__get_resources()
 
         self.add_tag = AddTag().add_tag
@@ -55,31 +48,30 @@ class NlgTools:
             last_sep=read_default_words(self._default_words, "iter_elems", "last_sep", default="and"),
         ).enum
 
-        self.__keyvals = KeyVals()
-        self.post_eval = self.__keyvals.post_eval
+        self._keyvals = KeyVals()
+        self.post_eval = self._keyvals.post_eval
 
-        self.__synonym = Synonym(freeze, self.__keyvals)
-        self.nlg_syn = self.__synonym.synonym
+        self._synonym = Synonym(freeze, self._keyvals)
+        self.nlg_syn = self._synonym.synonym
 
         self.free_text = FreeText().free_text
 
         self.intensity = Intensity().intensity
 
-    @property
-    def html(self):
-        """
-        Ca
-        :return:
-        """
+    def __get_resources(self):
+        resource_path = os.path.join(os.path.dirname(__file__), "resources")
+        self._ponct = read_json_resource(os.path.join(resource_path, "ponctuation.json"), self._lang)
+        self._default_words = read_json_resource(os.path.join(resource_path, "default_words.json"), self._lang)
+        self._contract = get_resource_lang(contraction, self._lang)
+
+    def __str__(self):
         self.__beautifier()
-        return self._html
+        return self._text
 
     @property
-    def html_str(self):
+    def text(self):
         self.__beautifier()
-        return html.tostring(
-            self._html, pretty_print=True, encoding="utf-8"
-        ).decode("utf-8")
+        return self._text
 
     def write_text(self, *args, no_space=False):
         """Creates a list of string"""
@@ -87,34 +79,18 @@ class NlgTools:
         text = list()
         for arg in args:
 
-            arg = self.__synonym.handle_patterns(arg)
-            self.__synonym.update_position(arg)
+            arg = self._synonym.handle_patterns(arg)
+            self._synonym.update_position(arg)
 
             text.append(arg)
             if not no_space:
                 text.append(" ")
 
-        self.__synonym.smart_syno_lvl = 0
-        self.__synonym.synos_by_pattern = {}
-        span = handle_string_to_html(
-            builder.SPAN, "".join(text), builder.CLASS("to_delete")
-        )
-        self._html.append(span)
-        return span
-
-    def __get_resources(self):
-        resource_path = os.path.join(os.path.dirname(__file__), "resources")
-        self._ponct = read_json_resource(os.path.join(resource_path, "ponctuation.json"), self._lang)
-
-        self._default_words = read_json_resource(os.path.join(resource_path, "default_words.json"), self._lang)
-
-        self._contract = get_resource_lang(contraction, self._lang)
-
-    def __str__(self):
-        self.__beautifier()
-        return html.tostring(
-            self._html, pretty_print=True, encoding="utf-8"
-        ).decode("utf-8")
+        self._synonym.smart_syno_lvl = 0
+        self._synonym.synos_by_pattern = {}
+        text = "".join(text)
+        self._text += text
+        return text
 
     def __beautifier(self):
         """
@@ -122,36 +98,13 @@ class NlgTools:
         :return:
         """
         if not self._is_beautiful:
-            for span in self._html.xpath("//span[@class='to_delete']"):
-                span.drop_tag()
-            text = html.tostring(self._html, encoding="utf-8").decode("utf-8")
-            self._html = html.fromstring(
-                beautifier(text, self._ponct, self._contract)
-            )
+            self._text = beautifier(self._text, self._ponct, self._contract)
             self._is_beautiful = True
-        return self._html
+        return self._text
 
-    def __html_elem_wrap(self, html_elem, html_elem_attr):
-        """
-        Creates a HTML container
+    @property
+    def html(self):
+        if self.html_elem_attr is None or len(self.html_elem_attr) == 0:
+            return html.fromstring(self.add_tag(self.html_elem, self.text))
+        return html.fromstring(self.add_tag(self.html_elem, self.text, **self.html_elem_attr))
 
-        :param html_elem: name of the HTML element (container) to be created
-        :type html_elem: string (eg. 'div')
-
-        :param html_elem_attr: indicates the attributes and their values, in the form {'class': 'a', ...}
-        :type html_elem_attr: dictionary (eg. { 'class': 'c', 'is': 'present' })
-
-        :return: an HTML element if a class is in the dictionary, a HTML builder if no class is in the dictionary
-        :rtype: if html_elem_attr['class'] exists: lxml.html.htmlElement; otherwise: lxml.html.builder
-        """
-        tag = getattr(builder, html_elem.upper())
-        if html_elem_attr is not None:
-            if "class" in html_elem_attr:
-                _class = builder.CLASS(html_elem_attr["class"])
-                html_elem_attr.pop("class")
-                tag = tag(_class, html_elem_attr)
-            else:
-                tag = tag(html_elem_attr)
-        else:
-            tag = tag()
-        self._html = tag
