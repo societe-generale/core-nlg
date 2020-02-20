@@ -30,72 +30,35 @@ def handle_capitalize(splitters, *args):
     return capitalized_text
 
 
-def contraction(splitters, current, contract, *text):
+def new_contraction(text, contract):
+    re_contract = False
+    for first_word, v in contract.items():
+        first_word = "|".join([first_word, first_word.capitalize()])
+        candidats = list()
+        for first_part_replacer, second_word in v.items():
 
-    if len(splitters) > current:
-        splitted = list()
-        for arg in text:
-            for elem in arg.split(splitters[current]):
-                splitted.append(elem)
-                splitted.append(splitters[current])
-            splitted.pop(-1)
-        splitted = contraction(splitters, current + 1, contract, *splitted)
-        return splitted
-    else:
-        splitted = list(text)
-        new_sent = list()
-        is_replaced = False
-        for i in range(len(splitted)):
-            if is_replaced:
-                is_replaced = False
-                continue
-            try:
-                w = splitted[i]
-            except IndexError:
-                break
-            try:
-                replacers = contract[w.lower()]
-                for rep, comp_pattern in replacers.items():
-                    if len(splitted) > i + 1:
-                        w1 = splitted[i + 1]
-                    else:
-                        break
-                    if w1 == " " and len(splitted) > i + 2:
-                        w1 = splitted[i + 2]
-                    else:
-                        break
-                    for e in comp_pattern:
-                        try:
-                            if isinstance(e, tuple):
-                                comp_w1 = e[0]
-                                replace = e[1]
-                            else:
-                                comp_w1 = e
-                                replace = w1
-                            if len(comp_w1) == 1 and w1[0].lower() == comp_w1:
-                                is_replaced = True
-                                if w[0].isupper():
-                                    rep = rep[0].upper() + "".join(rep[1:])
-                                new_sent.append(rep + replace[0] + "".join(w1[1:]))
-                                splitted.pop(i)
-                                break
-                            elif w1.lower() == comp_w1:
-                                is_replaced = True
-                                if w[0].isupper():
-                                    rep = rep[0].upper() + "".join(rep[1:])
-                                new_sent.append(rep + replace)
-                                splitted.pop(i)
-                                break
-
-                        except IndexError:
-                            pass
-                    if is_replaced:
-                        break
-            except KeyError:
-                pass
-            if not is_replaced or len(splitted) == i:
-                new_sent.append(w)
-        return "".join(new_sent)
+            for second in second_word:
+                if isinstance(second, tuple):
+                    second_replacer = second[1]
+                    second = "|".join([second[0], second[0].capitalize()])
+                else:
+                    second_replacer = second
+                    second = "|".join([second, second.capitalize()])
+                for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", first_word, ")(<[^>]*>)*([^<a-zA-Z])+(", second, ")"]), text):
+                    replacer = list()
+                    for g in match.groups():
+                        replacer.append(g if g is not None else "")
+                    replacer[2] = first_part_replacer
+                    replacer[-1] = second_replacer.capitalize() if replacer[-1][0].isupper() else second_replacer
+                    replacer.pop(0)
+                    candidats.append((match.group(), replacer))
+        if len(candidats) > 0:
+            candidats.sort(key=lambda t: len(t[0]), reverse=True)
+            text = re.sub(candidats[0][0], "".join(candidats[0][1]), text)
+            re_contract = True
+    if re_contract:
+        text = new_contraction(text, contract)
+    return text
 
 
 def handle_dots(text):
@@ -135,7 +98,7 @@ def remove_match_spaces(text, match, nb_removed, keep_one=False):
     if keep_one:
         count = len(re.findall(" ", cleaned)) - 1
         if not count == 0:
-            cleaned = re.sub(" ", "", cleaned, count=len(re.findall(" ", cleaned)) - 1)
+            cleaned = re.sub(" ", "", cleaned, count=count)
     else:
         cleaned = re.sub(" ", "", cleaned)
     if not match.group() == cleaned:
@@ -177,7 +140,7 @@ def handle_redondant_spaces(text):
 
 
 def space_regex():
-    return "".join(["( +(", balise_regex(), "*)*)"])
+    return "".join(["(", balise_regex(), "* +(", balise_regex(), "*)*)"])
 
 
 def balise_regex():
@@ -185,25 +148,7 @@ def balise_regex():
 
 
 def beautifier(f_ret, ponct, contract):
-    ignore_chars = [
-        " ",
-        ",",
-        "'",
-        "!",
-        ";",
-        ":",
-        "/",
-        '"',
-        "?",
-        "(",
-        ")",
-        ".",
-        "<",
-        ">",
-    ]
-    f_ret = contraction(
-        ignore_chars, 0, contract, contraction(ignore_chars, 0, contract, f_ret)
-    )
+    f_ret = new_contraction(f_ret, contract)
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
     f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)
