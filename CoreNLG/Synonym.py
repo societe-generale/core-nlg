@@ -222,7 +222,7 @@ class Synonym:
                 arg = analyzed_text + following_text
                 del self.synos_by_pattern[first_syno]
             else:
-                arg = arg.replace(first_eval, self._keyvals._keyvals__handle_post_eval(post_evals[first_eval]))
+                arg = arg.replace(first_eval, self._keyvals.handle_post_eval(post_evals[first_eval]))
                 del post_evals[first_eval]
 
         return arg
