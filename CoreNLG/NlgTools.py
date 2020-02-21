@@ -6,6 +6,7 @@ created on 02/12/2019 16:03
 import os
 
 from lxml import html
+from lxml import etree
 
 from CoreNLG.FreeText import FreeText
 from CoreNLG.Intensity import Intensity
@@ -22,10 +23,10 @@ from CoreNLG.tools import read_json_resource, get_resource_lang, read_default_wo
 
 
 class NlgTools:
-    def __init__(self, lang="fr", freeze=False, html_elem="div", html_elem_attr=None):
+    def __init__(self, lang="fr", freeze=False, elem="div", elem_attr=None):
         self._lang = lang
-        self.html_elem = html_elem
-        self.html_elem_attr = html_elem_attr
+        self.elem = elem
+        self.elem_attr = elem_attr
         self._is_beautiful = False
         self._ponct = None
         self._default_words = None
@@ -104,7 +105,13 @@ class NlgTools:
 
     @property
     def html(self):
-        if self.html_elem_attr is None or len(self.html_elem_attr) == 0:
-            return html.fromstring(self.add_tag(self.html_elem, self.text))
-        return html.fromstring(self.add_tag(self.html_elem, self.text, **self.html_elem_attr))
+        if self.elem_attr is None or len(self.elem_attr) == 0:
+            return html.fromstring(self.add_tag(self.elem, self.text))
+        return html.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
+
+    @property
+    def xml(self):
+        if self.elem_attr is None or len(self.elem_attr) == 0:
+            return etree.fromstring(self.add_tag(self.elem, self.text))
+        return etree.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
 

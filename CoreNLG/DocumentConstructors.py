@@ -6,6 +6,7 @@ created on 21/02/2019 17:27
 
 import lxml
 from lxml.html import builder
+from lxml import etree
 from abc import ABCMeta, abstractmethod
 
 from CoreNLG.NlgTools import NlgTools
@@ -33,6 +34,8 @@ class Document:
             return DocumentHtml(datas, lang=lang, freeze=freeze, title=title, css_path=css_path)
         elif text_format == "plain_text":
             return DocumentPlain(datas, lang=lang, freeze=freeze)
+        elif text_format == "xml":
+            return DocumentXml(datas, lang=lang, freeze=freeze, root="document")
         else:
             raise Exception("unknown text format : {}\ntext_format must be one of {}".format(text_format, formats))
 
@@ -91,10 +94,10 @@ class DocumentHtml(AbstractDocument):
         """Attribute for the HTML string of the document"""
         return lxml.html.tostring(self._html, encoding="utf-8").decode("utf-8")
 
-    def new_section(self, html_elem="div", html_elem_attr=None):
+    def new_section(self, elem=None, elem_attr=None, **kwargs):
         """Creating a new section with a dictionary of data"""
         section = SectionHtml(
-            self.datas, self._lang, self._freeze, html_elem, html_elem_attr
+            self.datas, self._lang, self._freeze, elem, elem_attr, **kwargs
         )
         self._sections.append(section)
         return section
@@ -130,6 +133,35 @@ class DocumentHtml(AbstractDocument):
                 self._html.get_element_by_id(parent_id).append(section.html)
             else:
                 self._html.find(".//" + parent_elem).append(section.html)
+
+
+class DocumentXml(AbstractDocument):
+    def __init__(self, datas, lang, freeze, root="document"):
+        super().__init__(datas, lang, freeze)
+        self._xml = etree.Element(root)
+
+    def __str__(self):
+        """Printing the HTML document with carriage returns"""
+        return etree.tostring(self._xml, encoding="utf-8", xml_declaration=True).decode("utf-8")
+
+    def __repr__(self):
+        return self._xml
+
+    @property
+    def xml(self):
+        return self._xml
+
+    def new_section(self, elem=None, elem_attr=None, **kwargs):
+        """Creating a new section with a dictionary of data"""
+        section = SectionXml(
+            self.datas, self._lang, self._freeze, elem, elem_attr, **kwargs
+        )
+        self._sections.append(section)
+        return section
+
+    def write_section(self, section, parent_elem=None, parent_id=None):
+        section.write()
+        self._xml.append(section.xml)
 
 
 class DocumentPlain(AbstractDocument):
@@ -185,14 +217,52 @@ class AbstractSection(object, metaclass=ABCMeta):
     def html(self):
         return self._nlg.html
 
+    @property
+    def xml(self):
+        return self._nlg.xml
+
+    @abstractmethod
+    def to_file(self, path):
+        pass
+
+    def read_old_attribs(self, elem, elem_attr, default, **kwargs):
+        if elem is None:
+            if "html_elem" in kwargs:
+                elem = kwargs["html_elem"]
+            else:
+                elem = default
+        if elem_attr is None:
+            if "html_elem_attr" in kwargs:
+                elem_attr = kwargs["html_elem_attr"]
+        return elem, elem_attr
+
 
 class SectionHtml(AbstractSection):
-    def __init__(self, datas, lang, freeze, html_elem="div", html_elem_attr=None):
+    def __init__(self, datas, lang, freeze, elem="div", elem_attr=None, **kwargs):
         super().__init__(datas)
-        self._nlg = NlgTools(lang, freeze, html_elem, html_elem_attr)
+        elem, elem_attr = self.read_old_attribs(elem, elem_attr, "div", **kwargs)
+        self._nlg = NlgTools(lang, freeze, elem, elem_attr)
 
     def __str__(self):
         return lxml.html.tostring(self._nlg.html, encoding="utf-8").decode("utf-8")
+
+    def to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.html)
+
+
+class SectionXml(AbstractSection):
+    def __init__(self, datas, lang, freeze, elem=None, elem_attr=None, **kwargs):
+        super().__init__(datas)
+        elem, elem_attr = self.read_old_attribs(elem, elem_attr, "child", **kwargs)
+        self._nlg = NlgTools(lang, freeze, elem, elem_attr)
+
+    def __str__(self):
+        return etree.tostring(self._nlg.xml, encoding="utf-8", xml_declaration=True).decode("utf-8")
+
+    def to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.xml)
 
 
 class SectionPlain(AbstractSection):
@@ -202,6 +272,10 @@ class SectionPlain(AbstractSection):
 
     def __str__(self):
         return self._nlg.text
+
+    def to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.text)
 
 
 class TextClass:
