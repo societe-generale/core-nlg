@@ -12,16 +12,11 @@ import string
 class Synonym:
     def __init__(self, freeze_syno, keyvals):
         self._freeze_syno = freeze_syno
-
         self._keyvals = keyvals
 
         self._synos_written = []
         self.smart_syno_lvl = 0
         self.synos_by_pattern = {}
-        self._transco_choice = {}
-        self._tmp_choice = {}
-        self._text_pos = 0
-        self._TAG_RE = re.compile(r"<[^>]+>")
 
     def synonym(self, *words, mode="smart"):
         s_words = []
@@ -52,14 +47,6 @@ class Synonym:
 
             keyval_context[pattern] = tmp_keyvals
 
-            for pat in [p for word in s_words for p in self.synos_by_pattern if p in word]:
-                if pat in keyval_context:
-                    keyval_context[pattern].update(keyval_context[pat])
-                    del keyval_context[pat]
-
-            if not keyval_context[pattern]:
-                del keyval_context[pattern]
-
             self.smart_syno_lvl += 1
             self.synos_by_pattern[pattern] = s_words
 
@@ -68,59 +55,51 @@ class Synonym:
     def __handle_synonym(self, pattern_to_evaluate):
         tmp_sbp = self.synos_by_pattern.copy()
         tmp_synos_written = self._synos_written.copy()
+        tmp_active_keyvals = self._keyvals.active_keyvals.copy()
 
-        best_evaluation = self.__get_best_leaf(pattern_to_evaluate, tmp_sbp, tmp_synos_written)
+        best_eval, keyvals = self.__get_best_leaf(pattern_to_evaluate, tmp_sbp, tmp_synos_written, tmp_active_keyvals)
 
         # Updating chosen synonyms
-        to_save = ' '.join(best_evaluation.strip().split())
+        to_save = ' '.join(best_eval.strip().split())
         self._synos_written.append(to_save)
 
         # Activating keyvals
-        self.__activate_keyval_if_any(pattern_to_evaluate, best_evaluation)
+        self._keyvals.active_keyvals = keyvals
 
-        return best_evaluation
+        return to_save
 
-    def __activate_keyval_if_any(self, pattern_to_evaluate, syno_chosen):
-        keyval_context = self._keyvals.keyval_context
-        active_keyvals = self._keyvals.active_keyvals
-        if pattern_to_evaluate in keyval_context:
-            syno = syno_chosen
+    def __get_best_leaf(self, pattern, sbp, previous_synos, active_keyvals):
+        kv_context = self._keyvals.keyval_context
 
-            while syno in self._transco_choice:
-                previous_branch = self._transco_choice[syno]
-                previous_choice = self._tmp_choice[previous_branch]
-
-                pattern_chosen = syno.replace(previous_choice, previous_branch)
-
-                if pattern_chosen in keyval_context[pattern_to_evaluate]:
-                    active_keyvals.append(keyval_context[pattern_to_evaluate][pattern_chosen])
-
-                del self._transco_choice[syno]
-
-                syno = previous_choice
-
-            if syno not in self._transco_choice:
-                if syno in keyval_context[pattern_to_evaluate]:
-                    active_keyvals.append(keyval_context[pattern_to_evaluate][syno])
-
-            del keyval_context[pattern_to_evaluate]
-
-    def __get_best_leaf(self, pattern, sbp, previous_synos):
-        """Recursive"""
-        for possibility in sbp[pattern]:
-            nodes = [pat for pat in sbp if pat in possibility]
-
+        keyvals = []
+        for i, choice in enumerate(sbp[pattern]):
             syno_tmp = []
-            for pat in nodes:
-                best_syno = self.__get_best_leaf(pat, sbp, previous_synos + syno_tmp)
-                syno_tmp.append(' '.join(best_syno.strip().split())) if len(nodes) > 1 else None
-                possibility = possibility.replace(pat, best_syno)
-                self._transco_choice[possibility] = pat
+            keyvals.append(active_keyvals.copy())
+
+            # temporary activation of the keyvals for this choice
+            if pattern in kv_context and choice in kv_context[pattern]:
+                keys = kv_context[pattern][choice]
+                if type(keys) is not list:
+                    keys = [keys]
+                keyvals[i] += [key for key in keys if key not in keyvals[i]]
+
+            node_list = [match.group() for match in re.finditer('(\*|~)[0-9]+(\*|~)', choice)]
+            for node in node_list:
+
+                is_post_eval = node[0] == '~'
+
+                if is_post_eval:
+                    key, if_active, if_inactive, clean = self._keyvals.post_evals[node]
+                    sbp[pattern][i] = sbp[pattern][i].replace(node, if_active if key in keyvals[i] else if_inactive)
+                    keyvals[i].remove(key) if clean and key in keyvals[i] else None
+                else:
+                    best_syno, kv = self.__get_best_leaf(node, sbp, previous_synos + syno_tmp, keyvals[i])
+                    syno_tmp.append(' '.join(best_syno.strip().split())) if len(node_list) > 1 else None
+                    sbp[pattern][i] = sbp[pattern][i].replace(node, best_syno)
+                    keyvals[i] = kv
 
         best_syno = self.__get_best_syno(sbp[pattern], previous_synos)
-        self._tmp_choice[pattern] = best_syno
-
-        return best_syno
+        return best_syno, keyvals[sbp[pattern].index(best_syno)]
 
     def __get_best_syno(self, synos, previous_synos):
         scores = {}
@@ -129,100 +108,70 @@ class Synonym:
             scores[word] = 0
             last_occ[word] = 0
 
-        for syno in synos:
-            scores[syno] = self.__get_score(syno, previous_synos)
+        done = False
+        p = previous_synos.copy()
+        while not done:
+            for syno in synos:
+                scores[syno] = self.__get_score(syno, previous_synos)
 
-        min_score = scores[min(scores, key=scores.get)]
+            sorted_scores = sorted(scores.values(), key=lambda x: (x[0], -x[1]), reverse=True)
+            max_score = sorted_scores[0]
 
-        result = []
-        for key in scores:
-            if scores[key] == min_score:
-                result.append(key)
+            result = []
+            for key in scores:
+                if scores[key] == max_score:
+                    result.append(key)
+
+            p = p[:-max_score[0] - 1]
+            done = len(result) == 1 or not p
 
         return random.choice(result)
 
     @staticmethod
-    def __get_score(words, previous_synos):
-        occ = 0
-        last_pos = 0
-        pos = len(previous_synos)
+    def __get_score(syno_to_evaluate, previous_synos):
+        """
+        - 2 words are considered similar if more than 'word_similarity_threshold' % of one word is in the other one
+        - 2 synonyms are considered similar if one of them has more than 'syno_similarity_threshold' % of similar words with the other one
+        """
+        min_length_following_letters = 3
+        word_similarity_threshold = 0.75
+        syno_similarity_threshold = 0.25
+        significant_word_length = 3
 
-        for syno_words in previous_synos:
-            found = False
-            split_synos = syno_words.split() if syno_words != '' else ['']
+        syno_to_evaluate_words = [w for w in syno_to_evaluate.split() if len(w) >= significant_word_length]
 
-            for s_word in split_synos:
-                split_words = words.split() if words != '' else ['']
+        for i, previous_synonym in enumerate(reversed(previous_synos)):
+            if syno_to_evaluate == previous_synonym:
+                return (i, len(syno_to_evaluate_words))
 
-                for word in split_words:
-                    if difflib.SequenceMatcher(None, s_word, word).quick_ratio() > 0.7:
-                        found = True
-                        occ += 1
+            previous_syno_words = [w for w in previous_synonym.split() if len(w) >= significant_word_length]
+            if not syno_to_evaluate_words or not previous_syno_words:
+                continue
 
-            last_pos = pos if found else last_pos
-            pos -= 1
+            similar_words = 0
+            for w_1 in previous_syno_words:
+                for w_2 in syno_to_evaluate_words:
+                    matching_blocks = difflib.SequenceMatcher(None, w_1, w_2).get_matching_blocks()
+                    n_following_letters = sum(bl[2] for bl in matching_blocks if bl[2] >= min_length_following_letters)
+                    if n_following_letters >= max(len(w_1), len(w_2)) * word_similarity_threshold:
+                        similar_words += 1
 
-        if len([word for word in words.split()]) > 1:
-            occ /= len(words.split()) / 2
+            if similar_words >= max(len(previous_syno_words), len(syno_to_evaluate_words)) * syno_similarity_threshold:
+                return (i, similar_words)
 
-        dist = last_pos
-
-        return 0 if occ == 0 else (occ * occ) / (dist * dist) if dist != 0 else 1
-
-    @staticmethod
-    def __get_disjoint_sequence(s1, s2):
-        s = difflib.SequenceMatcher(None, s1, s2)
-
-        matches = []
-        for i, j, n in s.get_matching_blocks():
-            matches.append(s1[i:i + n]) if n != 0 else None
-
-        for match in matches:
-            if s1.startswith(match) and s2.startswith(match) or s1.endswith(match) and s2.endswith(match):
-                s1 = s1.replace(match, '')
-                s2 = s2.replace(match, '')
-
-        return s1, s2
-
-    def update_position(self, sentence):
-        sentence_without_tag = self._TAG_RE.sub(' ', sentence)
-        sentence_without_punct = sentence_without_tag.translate(str.maketrans('', '', string.punctuation))
-
-        nb_words = len([word for word in sentence_without_punct.strip().split() if word != ''])
-        self._text_pos += nb_words
+        return (len(previous_synos), 0)
 
     def handle_patterns(self, arg):
-        synonym_pattern = re.compile('\*\d+\*')
-        eval_pattern = re.compile('~\d+~')
+        first_node = re.search('(\*|~)[0-9]+(\*|~)', arg)
 
-        post_evals = self._keyvals.post_evals
+        while first_node is not None:
+            node = first_node.group()
 
-        done = False
-        while not done:
-            first_syno, pos_first_syno = None, len(arg)
-            first_eval, pos_first_eval = None, len(arg)
-
-            search = synonym_pattern.search(arg)
-            if search != None:
-                first_syno = search.group()
-                pos_first_syno = search.start()
-
-            search = eval_pattern.search(arg)
-            if search != None:
-                first_eval = search.group()
-                pos_first_eval = search.start()
-
-            if pos_first_syno == pos_first_eval == len(arg):
-                done = True
-            elif pos_first_syno < pos_first_eval:
-                pos_end_pattern = pos_first_syno + len(first_syno)
-                text_to_analyze = arg[:pos_end_pattern]
-                following_text = arg[pos_end_pattern:]
-                analyzed_text = text_to_analyze.replace(first_syno, self.__handle_synonym(first_syno))
-                arg = analyzed_text + following_text
-                del self.synos_by_pattern[first_syno]
+            if node[0] == '~':
+                arg = arg.replace(node, self._keyvals.handle_post_eval(self._keyvals.post_evals[node]))
             else:
-                arg = arg.replace(first_eval, self._keyvals.handle_post_eval(post_evals[first_eval]))
-                del post_evals[first_eval]
+                arg = arg.replace(node, self.__handle_synonym(node))
+
+            first_node = re.search('(\*|~)[0-9]+(\*|~)', arg)
 
         return arg
