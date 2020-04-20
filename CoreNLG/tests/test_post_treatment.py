@@ -63,3 +63,13 @@ class TestPostTreatment:
     def test_add_spaces_fr(self, text_input, expected):
         text = post_treatment_with_free_text_fr(text_input)
         assert text == expected
+
+    @pytest.mark.parametrize(
+        "text_input, expected",
+        [
+            (["test.  .. multiple!ponctuation?is working ."], "Test... Multiple ! Ponctuation ? Is working.")
+        ],
+    )
+    def test_tag_with_styles(self, text_input, expected):
+        text = post_treatment_with_free_text_fr(text_input)
+        assert text == expected
