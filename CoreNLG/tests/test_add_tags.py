@@ -79,3 +79,11 @@ class TestAddTags:
     def test_iter_tags_2(self):
         assert self.iter_elems([self.add_tag("b", t) for t in ["test", "iter", "tag"]]) == "<b>test</b> , <b>iter</b> and <b>tag</b>"
 
+    @pytest.mark.parametrize(
+        "tag, text, style, expected",
+        [
+            ("b", "elem", "color:blue", "<b style=\"color:blue\">elem</b>")
+        ],
+    )
+    def test_tag_with_styles(self, tag, text, style, expected):
+        assert self.add_tag(tag, text, style=style) == expected
