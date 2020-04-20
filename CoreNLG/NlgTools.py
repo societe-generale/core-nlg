@@ -79,10 +79,7 @@ class NlgTools:
         self._is_beautiful = False
         text = list()
         for arg in args:
-
             arg = self._synonym.handle_patterns(arg)
-            self._synonym.update_position(arg)
-
             text.append(arg)
             if not no_space:
                 text.append(" ")
