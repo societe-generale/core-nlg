@@ -80,17 +80,28 @@ def handle_dots(text):
 
 
 def remove_spaces_before(text, char, keep_one=False):
-    nb_removed = 0
-    for match in re.finditer("".join([space_regex(), "+", "\\", char]), text):
-        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
-    return text
+    new_text = text
+
+    for inner_match in re.finditer(">[^<]+", text):
+        nb_removed = 0
+        inner_text = inner_match.group()
+        inner_text_spaces = inner_text.replace(char, " " + char)
+        for match in re.finditer("".join([" *\\", char]), inner_text_spaces):
+            inner_text_spaces, nb_removed = remove_match_spaces(inner_text_spaces, match, nb_removed, keep_one)
+            new_text = text[:inner_match.span()[0]] + inner_text_spaces + text[inner_match.span()[1]:]
+    return new_text
 
 
 def remove_spaces_after(text, char, keep_one=False):
-    nb_removed = 0
-    for match in re.finditer("".join(["\\", char, space_regex(), "+"]), text):
-        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
-    return text
+    new_text = text
+    for inner_match in re.finditer(">[^<]+", text):
+        nb_removed = 0
+        inner_text = inner_match.group()
+        inner_text_spaces = inner_text.replace(char, char + " ")
+        for match in re.finditer("".join(["\\", char, " *"]), inner_text_spaces):
+            inner_text_spaces, nb_removed = remove_match_spaces(inner_text_spaces, match, nb_removed, keep_one)
+            new_text = text[:inner_match.span()[0]] + inner_text_spaces + text[inner_match.span()[1]:]
+    return new_text
 
 
 def remove_match_spaces(text, match, nb_removed, keep_one=False):
@@ -109,24 +120,24 @@ def remove_match_spaces(text, match, nb_removed, keep_one=False):
 
 
 def handle_special_spaces(text, ponct):
+    text = "".join(["<remove>", text, "<remove>"])
     for char in ponct["space_after"]:
-        text = text.replace(char, "".join([char, " "]))
         text = remove_spaces_before(text, char)
         text = remove_spaces_after(text, char, True)
 
     for char in ponct["space_before"]:
-        text = text.replace(char, "".join([" ", char]))
         text = remove_spaces_before(text, char, True)
         text = remove_spaces_after(text, char)
 
     for char in ponct["space_before_and_after"]:
-        text = text.replace(char, "".join([" ", char, " "]))
         text = remove_spaces_before(text, char, True)
         text = remove_spaces_after(text, char, True)
 
     for char in ponct["no_spaces"]:
         text = remove_spaces_before(text, char)
         text = remove_spaces_after(text, char)
+
+    text = text.replace("<remove>", "")
     return text
 
 
