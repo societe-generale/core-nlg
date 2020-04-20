@@ -6,6 +6,8 @@ created on 21/02/2019 17:27
 
 import lxml
 from lxml.html import builder
+from lxml import etree
+from abc import ABCMeta, abstractmethod
 
 from CoreNLG.NlgTools import NlgTools
 
@@ -26,17 +28,45 @@ class Datas:
 
 
 class Document:
-    def __init__(
-            self, datas, title="", css_path="css/styles.css", lang="fr", freeze=False
-    ):
-        """
-        Initializing thanks to a JSON (datas)
-        HTML document head and body created
-        """
-        self.__lang = lang
-        self.__freeze = freeze
+    def __new__(cls, datas, text_format="html", title="", css_path="css/styles.css", lang="fr", freeze=False):
+        formats = ["html", "plain_text"]
+        if text_format == "html":
+            return DocumentHtml(datas, lang=lang, freeze=freeze, title=title, css_path=css_path)
+        elif text_format == "plain_text":
+            return DocumentPlain(datas, lang=lang, freeze=freeze)
+        elif text_format == "xml":
+            return DocumentXml(datas, lang=lang, freeze=freeze, root="document")
+        else:
+            raise Exception("unknown text format : {}\ntext_format must be one of {}".format(text_format, formats))
+
+
+class AbstractDocument(object, metaclass=ABCMeta):
+    @abstractmethod
+    def __init__(self, datas, lang, freeze):
+        self._lang = lang
+        self._freeze = freeze
         self.datas = datas
-        self.__sections = []
+        self._sections = []
+
+    @abstractmethod
+    def new_section(self):
+        pass
+
+    def write(self):
+        for section in self._sections:
+            self.write_section(section)
+
+    @abstractmethod
+    def write_section(self, section):
+        pass
+
+    def open_in_browser(self):
+        pass
+
+
+class DocumentHtml(AbstractDocument):
+    def __init__(self, datas, lang, freeze, title, css_path):
+        super().__init__(datas, lang, freeze)
         self._html = builder.HTML(
             builder.HEAD(
                 builder.META(charset="utf-8"),
@@ -52,26 +82,28 @@ class Document:
             self._html, pretty_print=True, encoding="utf-8"
         ).decode("utf-8")
 
+    def __repr__(self):
+        return self._html
+
+    @property
+    def html(self):
+        return self._html
+
     @property
     def api_html(self):
         """Attribute for the HTML string of the document"""
         return lxml.html.tostring(self._html, encoding="utf-8").decode("utf-8")
 
-    def open_in_browser(self):
-        """Saving and opening the document in the browser"""
-        lxml.html.open_in_browser(self._html)
-
-    def new_section(self, html_elem="div", html_elem_attr=None):
+    def new_section(self, elem=None, elem_attr=None, **kwargs):
         """Creating a new section with a dictionary of data"""
-        section = Section(
-            self.datas, html_elem, html_elem_attr, self.__lang, self.__freeze
+        section = SectionHtml(
+            self.datas, self._lang, self._freeze, elem, elem_attr, **kwargs
         )
-        self.__sections.append(section)
+        self._sections.append(section)
         return section
 
-    def write(self):
-        for section in self.__sections:
-            self.write_section(section)
+    def open_in_browser(self):
+        lxml.html.open_in_browser(self._html)
 
     def write_section(self, section, parent_elem=None, parent_id=None):
         """
@@ -103,43 +135,147 @@ class Document:
                 self._html.find(".//" + parent_elem).append(section.html)
 
 
-class Section:
-    def __init__(self, datas, html_elem, html_elem_attr, lang, freeze):
-        """A section contains a dictionary of data, a writer using NlgTools, and a text"""
-        self.__dict__ = datas.__dict__.copy()
-        self.__nlg = NlgTools(html_elem, html_elem_attr, lang=lang, freeze=freeze)
-        self.__text = list()
+class DocumentXml(AbstractDocument):
+    def __init__(self, datas, lang, freeze, root="document"):
+        super().__init__(datas, lang, freeze)
+        self._xml = etree.Element(root)
 
     def __str__(self):
-        return lxml.html.tostring(
-            self.__nlg.html, pretty_print=True, encoding="utf-8"
-        ).decode("utf-8")
+        """Printing the HTML document with carriage returns"""
+        return etree.tostring(self._xml, encoding="utf-8", xml_declaration=True).decode("utf-8")
+
+    def __repr__(self):
+        return self._xml
 
     @property
-    def html(self):
-        """HTML getter"""
-        return self.__nlg.html
+    def xml(self):
+        return self._xml
+
+    def new_section(self, elem=None, elem_attr=None, **kwargs):
+        """Creating a new section with a dictionary of data"""
+        section = SectionXml(
+            self.datas, self._lang, self._freeze, elem, elem_attr, **kwargs
+        )
+        self._sections.append(section)
+        return section
+
+    def write_section(self, section, parent_elem=None, parent_id=None):
+        section.write()
+        self._xml.append(section.xml)
+
+
+class DocumentPlain(AbstractDocument):
+    def __init__(self, datas, lang, freeze):
+        super().__init__(datas, lang, freeze)
+        self._text = ""
+
+    def __repr__(self):
+        return self._text
+
+    def write_section(self, section):
+        section.write()
+        self._text += str(section)
+
+    def new_section(self, **kwargs):
+        """Creating a new section with a dictionary of data"""
+        section = SectionPlain(
+            self.datas, self._lang, self._freeze
+        )
+        self._sections.append(section)
+        return section
+
+
+class AbstractSection(object, metaclass=ABCMeta):
+    @abstractmethod
+    def __init__(self, datas):
+        self.__dict__ = datas.__dict__.copy()
+        self._text = list()
+        self._nlg = None
 
     @property
     def text(self):
-        return " ".join([elem for elem in self.__text if elem is not None])
+        return " ".join([elem for elem in self._text if elem is not None])
 
     @text.setter
     def text(self, value):
         if isinstance(value, str):
-            self.__text += [value]
+            self._text += [value]
         else:
             f = lambda l: sum(([x] if type(x) not in [list, tuple] else f(x) for x in l), [])
-            self.__text += f(value)
+            self._text += f(value)
 
     def write(self):
         """Uses NlgTools to write the text"""
-        self.__nlg.write_text(self.text)
-        self.__text = list()
+        self._nlg.write_text(self.text)
+        self._text = list()
 
     @property
-    def tools(self) -> NlgTools():
-        return self.__nlg
+    def tools(self) -> NlgTools:
+        return self._nlg
+
+    @property
+    def html(self):
+        return self._nlg.html
+
+    @property
+    def xml(self):
+        return self._nlg.xml
+
+    @abstractmethod
+    def to_file(self, path):
+        pass
+
+    def read_old_attribs(self, elem, elem_attr, default, **kwargs):
+        if elem is None:
+            if "html_elem" in kwargs:
+                elem = kwargs["html_elem"]
+            else:
+                elem = default
+        if elem_attr is None:
+            if "html_elem_attr" in kwargs:
+                elem_attr = kwargs["html_elem_attr"]
+        return elem, elem_attr
+
+
+class SectionHtml(AbstractSection):
+    def __init__(self, datas, lang, freeze, elem="div", elem_attr=None, **kwargs):
+        super().__init__(datas)
+        elem, elem_attr = self.read_old_attribs(elem, elem_attr, "div", **kwargs)
+        self._nlg = NlgTools(lang, freeze, elem, elem_attr)
+
+    def __str__(self):
+        return lxml.html.tostring(self._nlg.html, encoding="utf-8").decode("utf-8")
+
+    def to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.html)
+
+
+class SectionXml(AbstractSection):
+    def __init__(self, datas, lang, freeze, elem=None, elem_attr=None, **kwargs):
+        super().__init__(datas)
+        elem, elem_attr = self.read_old_attribs(elem, elem_attr, "child", **kwargs)
+        self._nlg = NlgTools(lang, freeze, elem, elem_attr)
+
+    def __str__(self):
+        return etree.tostring(self._nlg.xml, encoding="utf-8", xml_declaration=True).decode("utf-8")
+
+    def to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.xml)
+
+
+class SectionPlain(AbstractSection):
+    def __init__(self, datas, lang, freeze):
+        super().__init__(datas)
+        self._nlg = NlgTools(lang, freeze)
+
+    def __str__(self):
+        return self._nlg.text
+
+    def to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.text)
 
 
 class TextClass:

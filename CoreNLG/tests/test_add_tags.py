@@ -17,14 +17,12 @@ class TestAddTags:
     @pytest.mark.parametrize(
         "tag, expected",
         [
-            (None, "tag None doesn't exist in html"),
             ("b", "<b></b>"),
             ("p", "<p></p>"),
             ("div", "<div></div>"),
             ("DIV", "<div></div>"),
             ("a", "<a></a>"),
-            ("u", "<u></u>"),
-            ("test", "tag test doesn't exist in html")
+            ("u", "<u></u>")
         ],
     )
     def test_empty_tag(self, tag, expected):
@@ -33,14 +31,12 @@ class TestAddTags:
     @pytest.mark.parametrize(
         "tag, text, expected",
         [
-            (None, "elem", "tag None doesn't exist in html"),
             ("b", "elem", "<b>elem</b>"),
             ("p", "elem", "<p>elem</p>"),
             ("div", "elem", "<div>elem</div>"),
             ("DIV", "elem", "<div>elem</div>"),
             ("a", "elem", "<a>elem</a>"),
-            ("u", "elem", "<u>elem</u>"),
-            ("test", "elem", "tag test doesn't exist in html")
+            ("u", "elem", "<u>elem</u>")
         ],
     )
     def test_tag_with_text(self, tag, text, expected):
@@ -49,14 +45,12 @@ class TestAddTags:
     @pytest.mark.parametrize(
         "tag, text, _class, expected",
         [
-            (None, "elem", "a_class", "tag None doesn't exist in html"),
             ("b", "elem", "a_class", "<b class=\"a_class\">elem</b>"),
             ("p", "elem", "a_class", "<p class=\"a_class\">elem</p>"),
             ("div", "elem", "a_class", "<div class=\"a_class\">elem</div>"),
             ("DIV", "elem", "a_class", "<div class=\"a_class\">elem</div>"),
             ("a", "elem", "a_class", "<a class=\"a_class\">elem</a>"),
-            ("u", "elem", "a_class", "<u class=\"a_class\">elem</u>"),
-            ("test", "elem", "a_class", "tag test doesn't exist in html")
+            ("u", "elem", "a_class", "<u class=\"a_class\">elem</u>")
         ],
     )
     def test_tag_with_text_and_class(self, tag, text, _class, expected):
@@ -65,14 +59,12 @@ class TestAddTags:
     @pytest.mark.parametrize(
         "tag, text, _class, expected",
         [
-            (None, "elem", "a_class", "tag None doesn't exist in html"),
-            ("b", "elem", "a_class", "<b other=\"test\" class=\"a_class\">elem</b>"),
-            ("p", "elem", "a_class", "<p other=\"test\" class=\"a_class\">elem</p>"),
-            ("div", "elem", "a_class", "<div other=\"test\" class=\"a_class\">elem</div>"),
-            ("DIV", "elem", "a_class", "<div other=\"test\" class=\"a_class\">elem</div>"),
-            ("a", "elem", "a_class", "<a other=\"test\" class=\"a_class\">elem</a>"),
-            ("u", "elem", "a_class", "<u other=\"test\" class=\"a_class\">elem</u>"),
-            ("test", "elem", "a_class", "tag test doesn't exist in html")
+            ("b", "elem", "a_class", "<b class=\"a_class\" other=\"test\">elem</b>"),
+            ("p", "elem", "a_class", "<p class=\"a_class\" other=\"test\">elem</p>"),
+            ("div", "elem", "a_class", "<div class=\"a_class\" other=\"test\">elem</div>"),
+            ("DIV", "elem", "a_class", "<div class=\"a_class\" other=\"test\">elem</div>"),
+            ("a", "elem", "a_class", "<a class=\"a_class\" other=\"test\">elem</a>"),
+            ("u", "elem", "a_class", "<u class=\"a_class\" other=\"test\">elem</u>")
         ],
     )
     def test_tag_with_text_class_and_other(self, tag, text, _class, expected):
