@@ -5,6 +5,7 @@ created on 18/12/2018 11:35
 """
 import copy
 import functools
+import re
 
 from lxml import html
 
@@ -13,234 +14,145 @@ from CoreNLG.NoInterpret import interpretable_char_reverse
 
 
 def handle_capitalize(splitters, *args):
-    """This function capitalizes an HTML string thanks to characters passed as argument.
-    'splitters' are the capitalizing characters; '*args' is the HTML string at the first call of the function
-    The function is divided into two parts:
-     - splitting the string through recursive calls, looping through the splitters;
-     - removing the starting characters of the elements, if these are space, carriage returns, or HTML containers.
-     Eventually, the elements are joined and if characters have been removed, then we uppercase the first character.
-     It returns a list of HTML elements alternating with splitters."""
-    splitted = list()
-    if len(splitters) > 0:
-        for arg in args:
-            for elem in arg.split(splitters[0]):
-                if len(elem) > 0 and elem[-1] == " ":
-                    elem = elem[:-1]
-                splitted.append(elem)
-                splitted.append(splitters[0])
-            splitted.pop(
-                -1
-            )  # Removes the last capitalizing character we added the line before
-        splitters.pop(0)
-        splitted = handle_capitalize(splitters, *splitted)
-    else:
-        for arg in args:
-            if len(arg) > 0:
-                saved_char = ""
-                ignored_char = True
-                while ignored_char:
-                    ignored_char = False
-                    if arg[0] in [" ", "\n"]:
-                        ignored_char = True
-                        saved_char += arg[0]
-                        arg = arg[1:]
 
-                    if len(arg) > 0 and arg[0] == "<":
-                        ignored_char = True
-                        while arg[0] != ">":
-                            saved_char += arg[0]
-                            arg = arg[1:]
-                        saved_char += ">"
-                        arg = arg[1:]
-                    if len(arg) == 0:
-                        break
-                if len(arg) == 0:
-                    arg = saved_char
+    capitalized_text = list()
+    for i, a in enumerate(args):
+        new_string = a
+        matchs = list()
+        if i == 0:
+            match = re.search("".join([r"^", balise_regex(), r"*( *\n*)*[a-z]"]), new_string)
+            if match is not None:
+                matchs.append(match)
+        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*", balise_regex(), "*( *\n*)*[a-z]"]), new_string)
+        for match in matchs:
+            new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1].upper() + new_string[match.span()[1]:]
+        capitalized_text.append(new_string)
+    return capitalized_text
+
+
+def new_contraction(text, contract):
+    re_contract = False
+    for first_word, v in contract.items():
+        first_word = "|".join([first_word, first_word.capitalize()])
+        candidats = list()
+        for first_part_replacer, second_word in v.items():
+
+            for second in second_word:
+                if isinstance(second, tuple):
+                    second_replacer = second[1]
+                    second = "|".join([second[0], second[0].capitalize()])
                 else:
-                    arg = "".join([saved_char, arg[0].upper(), arg[1:]])
-                splitted.append(arg)
-    return splitted
-
-
-def contraction(splitters, current, contract, *text):
-
-    if len(splitters) > current:
-        splitted = list()
-        for arg in text:
-            for elem in arg.split(splitters[current]):
-                splitted.append(elem)
-                splitted.append(splitters[current])
-            splitted.pop(-1)
-        splitted = contraction(splitters, current + 1, contract, *splitted)
-        return splitted
-    else:
-        splitted = list(text)
-        new_sent = list()
-        is_replaced = False
-        for i in range(len(splitted)):
-            if is_replaced:
-                is_replaced = False
-                continue
-            try:
-                w = splitted[i]
-            except IndexError:
-                break
-            try:
-                replacers = contract[w.lower()]
-                for rep, comp_pattern in replacers.items():
-                    if len(splitted) > i + 1:
-                        w1 = splitted[i + 1]
-                    else:
-                        break
-                    if w1 == " " and len(splitted) > i + 2:
-                        w1 = splitted[i + 2]
-                    else:
-                        break
-                    for e in comp_pattern:
-                        try:
-                            if isinstance(e, tuple):
-                                comp_w1 = e[0]
-                                replace = e[1]
-                            else:
-                                comp_w1 = e
-                                replace = w1
-                            if len(comp_w1) == 1 and w1[0].lower() == comp_w1:
-                                is_replaced = True
-                                if w[0].isupper():
-                                    rep = rep[0].upper() + "".join(rep[1:])
-                                new_sent.append(rep + replace[0] + "".join(w1[1:]))
-                                splitted.pop(i)
-                                break
-                            elif w1.lower() == comp_w1:
-                                is_replaced = True
-                                if w[0].isupper():
-                                    rep = rep[0].upper() + "".join(rep[1:])
-                                new_sent.append(rep + replace)
-                                splitted.pop(i)
-                                break
-
-                        except IndexError:
-                            pass
-                    if is_replaced:
-                        break
-            except KeyError:
-                pass
-            if not is_replaced or len(splitted) == i:
-                new_sent.append(w)
-        return "".join(new_sent)
-
-
-def space_after(text, chars):
-    """Takes as parameters the HTML string ('text') and the characters to be considered for spaces handling ('chars').
-    It adds a space after and removes a space before when 'chars' are encountered while parsing 'text'.
-    The function eventually suppresses unneeded whitespaces, thanks to 'handle_spaces'."""
-    " ".join(text.split())  # Useless
-    for char in chars:
-        text = text.replace(char, char + " ")
-        text = text.replace(" " + char, char)
-        text = handle_spaces(text)
-    return text
-
-
-def space_before(text, chars):
-    """Cf. 'space_after.__doc__', as the arguments and the algorithm are the same.
-    The difference is that it removes spaces placed after a 'chars' character, and adds spaces before if there is none."""
-    " ".join(text.split())  # Useless
-    for char in chars:
-        text = text.replace(char, " " + char)
-        text = text.replace(char + " ", char)
-        text = handle_spaces(text)
-    return text
-
-
-def space_before_after(text, chars):
-    """"""
-    for char in chars:
-        text = text.replace(char, " " + char + " ")
-    return text
-
-
-def no_space(text, chars):
-    """"""
-    for char in chars:
-        text = text.replace(" " + char, "" + char)
-        text = text.replace(char + " ", char + "")
+                    second_replacer = second
+                    second = "|".join([second, second.capitalize()])
+                for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", first_word, ")(<[^>]*>)*([^<a-zA-Z])+(", second, ")"]), text):
+                    replacer = list()
+                    for g in match.groups():
+                        replacer.append(g if g is not None else "")
+                    replacer[2] = first_part_replacer
+                    replacer[-1] = second_replacer.capitalize() if replacer[-1][0].isupper() else second_replacer
+                    replacer.pop(0)
+                    candidats.append((match.group(), replacer))
+        if len(candidats) > 0:
+            candidats.sort(key=lambda t: len(t[0]), reverse=True)
+            text = re.sub(candidats[0][0], "".join(candidats[0][1]), text)
+            re_contract = True
+    if re_contract:
+        text = new_contraction(text, contract)
     return text
 
 
 def handle_dots(text):
-    elems = text.split(".")
-    new_list = list()
-    i = 0
-    while i < len(elems):
-        if elems[i] == " ":
-            dots = 2
-            while i < len(elems):
-                i += 1
-                if elems[i] == " ":
-                    dots += 1
-                else:
-                    if dots >= 3:
-                        new_list.append(".")
-                    new_list.append(elems[i])
-                    break
-        else:
-            new_list.append(elems[i])
-        i += 1
-    return ".".join(new_list)
+    matchs = re.finditer("".join([r"\.+(", balise_regex(), r"*([^a-zA-Z0-1])*)*\.+"]), text)
+    nb_removed = 0
+    re_check = False
+    for match in matchs:
+        nb_dots = len(re.findall(r"\.", match.group()))
+        if nb_dots == 2 or nb_dots > 3:
+            if nb_dots > 3:
+                re_check = True
+            text = text[:match.span()[1] - 1 - nb_removed] + text[match.span()[1] - nb_removed:]
+            nb_removed += 1
+        elif nb_dots == 3:
+            text, nb_removed = remove_match_spaces(text, match, nb_removed)
+    if re_check:
+        text = handle_dots(text)
+    return text
 
 
-def handle_spaces(text):
-    """Chained whitespaces are removed and replaced by a single space.
-    Exception when between two containers separated by whitespaces: there is no space.
-    Eg. '..._<html>_<head>_...' => '..._<html><head>_...' """
-    ret_splitted = text.split(" ")
+def remove_spaces_before(text, char, keep_one=False):
+    nb_removed = 0
+    for match in re.finditer("".join([space_regex(), "+", "\\", char]), text):
+        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
+    return text
 
-    # ret_splitted = [e for e in ret_splitted if e not in ('', ' ')]
-    ret = list()
-    for i in range(len(ret_splitted)):
-        e = ret_splitted[i]
-        if len(e) > 0:
-            if e[0] == "<" and e[-1] == ">" and "<" not in e[1:]:
-                if len(ret) > 0:
-                    last = ret[-1]
-                    ret.pop(-1)
-                    ret.append("".join([last, e]))
-                else:
-                    ret.append(e)
-            else:
-                ret.append(e)
-    return " ".join(ret)
+
+def remove_spaces_after(text, char, keep_one=False):
+    nb_removed = 0
+    for match in re.finditer("".join(["\\", char, space_regex(), "+"]), text):
+        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
+    return text
+
+
+def remove_match_spaces(text, match, nb_removed, keep_one=False):
+    cleaned = match.group()
+    if keep_one:
+        count = len(re.findall(" ", cleaned)) - 1
+        if not count == 0:
+            cleaned = re.sub(" ", "", cleaned, count=count)
+    else:
+        cleaned = re.sub(" ", "", cleaned)
+    if not match.group() == cleaned:
+        text = text[:match.span()[0] - nb_removed] + cleaned + text[match.span()[1] - nb_removed:]
+        nb_removed += len(match.group()) - len(cleaned)
+
+    return text, nb_removed
+
+
+def handle_special_spaces(text, ponct):
+    for char in ponct["space_after"]:
+        text = text.replace(char, "".join([char, " "]))
+        text = remove_spaces_before(text, char)
+        text = remove_spaces_after(text, char, True)
+
+    for char in ponct["space_before"]:
+        text = text.replace(char, "".join([" ", char]))
+        text = remove_spaces_before(text, char, True)
+        text = remove_spaces_after(text, char)
+
+    for char in ponct["space_before_and_after"]:
+        text = text.replace(char, "".join([" ", char, " "]))
+        text = remove_spaces_before(text, char, True)
+        text = remove_spaces_after(text, char, True)
+
+    for char in ponct["no_spaces"]:
+        text = remove_spaces_before(text, char)
+        text = remove_spaces_after(text, char)
+    return text
+
+
+def handle_redondant_spaces(text):
+    nb_removed = 0
+    for match in re.finditer("".join([space_regex(), "+"]), text):
+        text, nb_removed = remove_match_spaces(text, match, nb_removed, True)
+
+    text = re.sub("".join([r" ", balise_regex(), "*$"]), "", text)
+    return text
+
+
+def space_regex():
+    return "".join(["(", balise_regex(), "* +(", balise_regex(), "*)*)"])
+
+
+def balise_regex():
+    return "(<[^>]*>)"
 
 
 def beautifier(f_ret, ponct, contract):
-    f_ret = handle_spaces(f_ret)
-    ignore_chars = [
-        " ",
-        ",",
-        "'",
-        "!",
-        ";",
-        ":",
-        "/",
-        '"',
-        "?",
-        "(",
-        ")",
-        ".",
-        "<",
-        ">",
-    ]
-    f_ret = contraction(
-        ignore_chars, 0, contract, contraction(ignore_chars, 0, contract, f_ret)
-    )
+    f_ret = new_contraction(f_ret, contract)
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
-    f_ret = space_after(f_ret, copy.copy(ponct["space_after"]))
-    f_ret = space_before(f_ret, copy.copy(ponct["space_before"]))
-    f_ret = space_before_after(f_ret, copy.copy(ponct["space_before_and_after"]))
-    f_ret = no_space(f_ret, copy.copy(ponct["no_spaces"]))
+    f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)
-    f_ret = handle_spaces(f_ret)
+    f_ret = handle_redondant_spaces(f_ret)
     for key, value in interpretable_char_reverse.items():
         f_ret = f_ret.replace("#" + key + "#", value)
 
