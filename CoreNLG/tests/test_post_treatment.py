@@ -73,3 +73,14 @@ class TestPostTreatment:
     def test_tag_with_styles(self, text_input, expected):
         text = post_treatment_with_free_text_fr(text_input)
         assert text == expected
+
+    @pytest.mark.parametrize(
+        "text_input, expected",
+        [
+            (["test .<p> \n<b>capitalize</b>  "], "Test.  \nCapitalize"),
+            (["test .<p>  <b>capitalize</b>  "], "Test.  Capitalize")
+        ],
+    )
+    def test_capitalize_with_tags(self, text_input, expected):
+        text = post_treatment_with_free_text_fr(text_input)
+        assert text == expected
