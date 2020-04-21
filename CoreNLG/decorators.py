@@ -80,28 +80,33 @@ def handle_dots(text):
 
 
 def remove_spaces_before(text, char, keep_one=False):
-    new_text = text
-
+    nb_removed = 0
     for inner_match in re.finditer(">[^<]+", text):
-        nb_removed = 0
+
         inner_text = inner_match.group()
         inner_text_spaces = inner_text.replace(char, " " + char)
-        for match in re.finditer("".join([" *\\", char]), inner_text_spaces):
-            inner_text_spaces, nb_removed = remove_match_spaces(inner_text_spaces, match, nb_removed, keep_one)
-            new_text = text[:inner_match.span()[0]] + inner_text_spaces + text[inner_match.span()[1]:]
-    return new_text
+
+        sub = "".join([" ", char]) if keep_one else char
+        inner_text_sub = re.sub("".join([" *\\", char]), sub, inner_text_spaces)
+        if inner_text_sub != inner_text_spaces or inner_text_sub != inner_text:
+            text = text[:inner_match.span()[0] - nb_removed] + inner_text_sub + text[inner_match.span()[1] - nb_removed:]
+            nb_removed += len(inner_text) - len(inner_text_spaces)
+            nb_removed += len(inner_text_spaces) - len(inner_text_sub)
+    return text
 
 
 def remove_spaces_after(text, char, keep_one=False):
-    new_text = text
+    nb_removed = 0
     for inner_match in re.finditer(">[^<]+", text):
-        nb_removed = 0
         inner_text = inner_match.group()
         inner_text_spaces = inner_text.replace(char, char + " ")
-        for match in re.finditer("".join(["\\", char, " *"]), inner_text_spaces):
-            inner_text_spaces, nb_removed = remove_match_spaces(inner_text_spaces, match, nb_removed, keep_one)
-            new_text = text[:inner_match.span()[0]] + inner_text_spaces + text[inner_match.span()[1]:]
-    return new_text
+        sub = "".join([char, " "]) if keep_one else char
+        inner_text_sub = re.sub("".join(["\\", char, " *"]), sub, inner_text_spaces)
+        if inner_text_sub != inner_text_spaces or inner_text_sub != inner_text:
+            text = text[:inner_match.span()[0] - nb_removed] + inner_text_sub + text[inner_match.span()[1] - nb_removed:]
+            nb_removed += len(inner_text) - len(inner_text_spaces)
+            nb_removed += len(inner_text_spaces) - len(inner_text_sub)
+    return text
 
 
 def remove_match_spaces(text, match, nb_removed, keep_one=False):
@@ -143,15 +148,11 @@ def handle_special_spaces(text, ponct):
 
 def handle_redondant_spaces(text):
     nb_removed = 0
-    for match in re.finditer("".join([space_regex(), "+"]), text):
+    for match in re.finditer("".join([" +"]), text):
         text, nb_removed = remove_match_spaces(text, match, nb_removed, True)
 
     text = re.sub("".join([r" ", balise_regex(), "*$"]), "", text)
     return text
-
-
-def space_regex():
-    return "".join(["(", balise_regex(), "* +(", balise_regex(), "*)*)"])
 
 
 def balise_regex():
