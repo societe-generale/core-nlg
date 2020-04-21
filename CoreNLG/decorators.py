@@ -44,7 +44,7 @@ def new_contraction(text, contract):
                 else:
                     second_replacer = second
                     second = "|".join([second, second.capitalize()])
-                for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", first_word, ")(<[^>]*>)*([^<a-zA-Z])+(", second, ")"]), text):
+                for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", first_word, ")(<[^>]*>)*( *\n*)+(", second, ")"]), text):
                     replacer = list()
                     for g in match.groups():
                         replacer.append(g if g is not None else "")
@@ -54,7 +54,7 @@ def new_contraction(text, contract):
                     candidats.append((match.group(), replacer))
         if len(candidats) > 0:
             candidats.sort(key=lambda t: len(t[0]), reverse=True)
-            text = re.sub(candidats[0][0], "".join(candidats[0][1]), text)
+            text = text.replace(candidats[0][0], "".join(candidats[0][1]))
             re_contract = True
     if re_contract:
         text = new_contraction(text, contract)

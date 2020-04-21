@@ -45,7 +45,8 @@ class TestPostTreatment:
             (["le école"], "L'école"),
             (["le île"], "L'île"),
             (["jusque à les"], "Jusqu'aux"),
-            (["le Arbre"], "L'Arbre")
+            (["le Arbre"], "L'Arbre"),
+            (["De 15   e"], "De 15 e"),
         ],
     )
     def test_contraction_fr(self, text_input, expected):
