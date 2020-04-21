@@ -156,7 +156,7 @@ def handle_redondant_spaces(text):
 
 
 def balise_regex():
-    return "(<[^>]*>)"
+    return "(<[^>]*> *\n*)"
 
 
 def beautifier(f_ret, ponct, contract):
