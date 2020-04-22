@@ -30,35 +30,25 @@ def handle_capitalize(splitters, *args):
     return capitalized_text
 
 
-def new_contraction(text, contract):
+def new_contraction(text, contracts):
     re_contract = False
-    for first_word, v in contract.items():
-        first_word = "|".join([first_word, first_word.capitalize()])
+    for contract in contracts:
         candidats = list()
-        if len(re.findall("".join(["(([^a-zA-Z]+|^))(", first_word, ")"]), text)) == 0:
-            continue
-        for first_part_replacer, second_word in v.items():
-            for second in second_word:
-                if isinstance(second, tuple):
-                    second_replacer = second[1]
-                    second = "|".join([second[0], second[0].capitalize()])
-                else:
-                    second_replacer = second
-                    second = "|".join([second, second.capitalize()])
-                for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", first_word, ")(<[^>]*>)*( *\n*)+(", second, ")"]), text):
-                    replacer = list()
-                    for g in match.groups():
-                        replacer.append(g if g is not None else "")
-                    replacer[2] = first_part_replacer
-                    replacer[-1] = second_replacer.capitalize() if replacer[-1][0].isupper() else second_replacer
-                    replacer.pop(0)
-                    candidats.append((match.group(), replacer))
+        for search, replace in contract.items():
+            for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", search[0], ")(<[^>]*>)*( *\n*)+(", search[1], ")"]), text):
+                replacer = list()
+                for g in match.groups():
+                    replacer.append(g if g is not None else "")
+                replacer[2] = replace[0]
+                replacer[-1] = replace[1].capitalize() if replacer[-1][0].isupper() else replace[1]
+                replacer.pop(0)
+                candidats.append((match.group(), replacer))
         if len(candidats) > 0:
             candidats.sort(key=lambda t: len(t[0]), reverse=True)
             text = text.replace(candidats[0][0], "".join(candidats[0][1]))
             re_contract = True
     if re_contract:
-        text = new_contraction(text, contract)
+        text = new_contraction(text, contracts)
     return text
 
 
@@ -162,7 +152,10 @@ def balise_regex():
 
 
 def beautifier(f_ret, ponct, contract):
+    import time
+    t = time.time()
     f_ret = new_contraction(f_ret, contract)
+    print(time.time() - t)
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
     f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)

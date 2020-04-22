@@ -63,7 +63,24 @@ class NlgTools:
         resource_path = os.path.join(os.path.dirname(__file__), "resources")
         self._ponct = read_json_resource(os.path.join(resource_path, "ponctuation.json"), self._lang)
         self._default_words = read_json_resource(os.path.join(resource_path, "default_words.json"), self._lang)
-        self._contract = get_resource_lang(contraction, self._lang)
+        self._contract = self.__expand_contractions(get_resource_lang(contraction, self._lang))
+
+    def __expand_contractions(self, contracts):
+        contract_expended = list()
+        for first_word, v in contracts.items():
+            secondary = dict()
+            first_word = "|".join([first_word, first_word.capitalize()])
+            for first_part_replacer, second_word in v.items():
+                for second in second_word:
+                    try:
+                        second_replacer = second[1]
+                        second = "|".join([second[0], second[0].capitalize()])
+                    except IndexError:
+                        second_replacer = second
+                        second = "|".join([second, second.capitalize()])
+                    secondary.update({(first_word, second): (first_part_replacer, second_replacer)})
+            contract_expended.append(secondary)
+        return contract_expended
 
     def __str__(self):
         self.__beautifier()
