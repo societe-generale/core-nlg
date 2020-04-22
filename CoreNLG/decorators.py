@@ -35,7 +35,9 @@ def new_contraction(text, contracts):
     for contract in contracts:
         candidats = list()
         for search, replace in contract.items():
-            for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", search[0], ")(<[^>]*>)*( *\n*)+(", search[1], ")"]), text):
+            if len(re.findall("".join(["(", search[0], ")(<[^>]*>)*( +\n*)+(", search[1], ")"]), text)) == 0:
+                continue
+            for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", search[0], ")(<[^>]*>)*( +\n*)+(", search[1], ")"]), text):
                 replacer = list()
                 for g in match.groups():
                     replacer.append(g if g is not None else "")
