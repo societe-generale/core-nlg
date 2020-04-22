@@ -35,8 +35,9 @@ def new_contraction(text, contract):
     for first_word, v in contract.items():
         first_word = "|".join([first_word, first_word.capitalize()])
         candidats = list()
+        if len(re.findall("".join(["(([^a-zA-Z]+|^))(", first_word, ")"]), text)) == 0:
+            continue
         for first_part_replacer, second_word in v.items():
-
             for second in second_word:
                 if isinstance(second, tuple):
                     second_replacer = second[1]
