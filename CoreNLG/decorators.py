@@ -65,18 +65,19 @@ def new_contraction(text, contract):
 def handle_dots(text):
     matchs = re.finditer("".join([r"\.+(", balise_regex(), r"*([^a-zA-Z0-1])*)*\.+"]), text)
     nb_removed = 0
-    re_check = False
     for match in matchs:
         nb_dots = len(re.findall(r"\.", match.group()))
-        if nb_dots == 2 or nb_dots > 3:
-            if nb_dots > 3:
-                re_check = True
-            text = text[:match.span()[1] - 1 - nb_removed] + text[match.span()[1] - nb_removed:]
+        cleaned_dots = match.group()
+        cleaned_dots = re.sub(" ", "", cleaned_dots)
+        if nb_dots == 2:
+            cleaned_dots = match.group()[:-1]
+            text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
             nb_removed += 1
-        elif nb_dots == 3:
-            text, nb_removed = remove_match_spaces(text, match, nb_removed)
-    if re_check:
-        text = handle_dots(text)
+        elif nb_dots >= 3:
+            if nb_dots > 3:
+                cleaned_dots = re.sub("\\.", "", cleaned_dots, count=nb_dots - 3)
+            text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
+        nb_removed += len(match.group()) - len(cleaned_dots)
     return text
 
 
