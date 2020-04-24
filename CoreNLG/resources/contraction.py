@@ -38,6 +38,8 @@ contraction = {
         },
     },
     "en": {
-
+        "a": {
+            "an ": vowel,
+        }
     }
 }
