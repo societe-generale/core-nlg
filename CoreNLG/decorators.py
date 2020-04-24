@@ -153,10 +153,7 @@ def balise_regex():
 
 
 def beautifier(f_ret, ponct, contract):
-    import time
-    t = time.time()
     f_ret = new_contraction(f_ret, contract)
-    print(time.time() - t)
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
     f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)
