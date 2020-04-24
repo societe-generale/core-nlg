@@ -64,7 +64,6 @@ def handle_dots(text):
         if nb_dots == 2:
             cleaned_dots = match.group()[:-1]
             text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
-            nb_removed += 1
         elif nb_dots >= 3:
             if nb_dots > 3:
                 cleaned_dots = re.sub("\\.", "", cleaned_dots, count=nb_dots - 3)
