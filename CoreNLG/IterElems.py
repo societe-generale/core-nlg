@@ -59,14 +59,14 @@ class IterElems:
         if len(elem_list) > 0:
             text = list()
             if self.begin_w is not None:
-                text.append(self.begin_w + " ")
+                text.append(str(self.begin_w) + " ")
             if self.nb_elem_bullet is None or len(elem_list) < self.nb_elem_bullet:
                 elem = self.__iter_elems(elem_list)
             else:
                 elem = self.__bullets_points(elem_list)
             text.append(elem)
             if self.end_w is not None:
-                text.append(" " + self.end_w)
+                text.append(" " + str(self.end_w))
             return "".join(text)
         else:
             return self.text_if_empty_list
@@ -78,12 +78,12 @@ class IterElems:
         for i in range(len(iter_elem)):
             if i == len(iter_elem) - 2:
                 elem += iter_elem[i]
-                elem.append(self.last_sep)
+                elem.append(str(self.last_sep))
                 elem += iter_elem[i + 1]
                 break
             else:
                 elem += iter_elem[i]
-                elem.append(self.sep)
+                elem.append(str(self.sep))
         return " ".join(elem)
 
     def __bullets_points(self, iter_elem):
@@ -96,9 +96,9 @@ class IterElems:
                 elem = "".join([elem[0].upper(), elem[1:]])
 
             if i == len(iter_elem) - 1:
-                elem += self.end_of_last_bullet
+                elem += str(self.end_of_last_bullet)
             else:
-                elem += self.end_of_bullet
+                elem += str(self.end_of_bullet)
 
             if "<" in elem and ">" in elem:
                 elem = handle_string_to_html(builder.SPAN, elem, builder.CLASS("to_delete"))
