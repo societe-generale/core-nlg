@@ -41,7 +41,7 @@ class NlgTools:
         self.nlg_num = Number(
             no_interpret=self.no_interpret,
             sep=read_default_words(self._default_words, "numbers", "sep", default="."),
-            mile_sep=read_default_words(self._default_words, "numbers", "mile_sep", default=" "),
+            thousand_sep=read_default_words(self._default_words, "numbers", "thousand_sep", default=" "),
         ).nlg_num
 
         self.enum = IterElems(
