@@ -20,10 +20,10 @@ def handle_capitalize(splitters, *args):
         new_string = a
         matchs = list()
         if i == 0:
-            match = re.search("".join([r"^", balise_regex(), r"*( *\n*)*[a-z]"]), new_string)
+            match = re.search("".join([r"^", "( |\n|<[^>]*>)*[a-z]"]), new_string)
             if match is not None:
                 matchs.append(match)
-        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*", balise_regex(), "*( *\n*)*[a-z]"]), new_string)
+        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( |\n|<[^>]*>)*[a-z]"]), new_string)
         for match in matchs:
             new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1].upper() + new_string[match.span()[1]:]
         capitalized_text.append(new_string)
