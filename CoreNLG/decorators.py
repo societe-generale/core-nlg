@@ -55,7 +55,7 @@ def new_contraction(text, contracts):
 
 
 def handle_dots(text):
-    matchs = re.finditer("".join([r"\.+(", balise_regex(), r"*([^a-zA-Z0-1])*)*\.+"]), text)
+    matchs = re.finditer("\\.\\W*\\.", text)
     nb_removed = 0
     for match in matchs:
         nb_dots = len(re.findall(r"\.", match.group()))
