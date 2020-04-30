@@ -45,7 +45,8 @@ class TestPostTreatment:
             (["le école"], "L'école"),
             (["le île"], "L'île"),
             (["jusque à les"], "Jusqu'aux"),
-            (["le Arbre"], "L'Arbre")
+            (["le Arbre"], "L'Arbre"),
+            (["De 15   e"], "De 15 e"),
         ],
     )
     def test_contraction_fr(self, text_input, expected):
@@ -61,5 +62,26 @@ class TestPostTreatment:
         ],
     )
     def test_add_spaces_fr(self, text_input, expected):
+        text = post_treatment_with_free_text_fr(text_input)
+        assert text == expected
+
+    @pytest.mark.parametrize(
+        "text_input, expected",
+        [
+            (["test.  .. multiple!ponctuation?is working ."], "Test... Multiple ! Ponctuation ? Is working.")
+        ],
+    )
+    def test_tag_with_styles(self, text_input, expected):
+        text = post_treatment_with_free_text_fr(text_input)
+        assert text == expected
+
+    @pytest.mark.parametrize(
+        "text_input, expected",
+        [
+            (["test .<p> \n<b>capitalize</b>  "], "Test.  \nCapitalize"),
+            (["test .<p>  <b>capitalize</b>  "], "Test.  Capitalize")
+        ],
+    )
+    def test_capitalize_with_tags(self, text_input, expected):
         text = post_treatment_with_free_text_fr(text_input)
         assert text == expected

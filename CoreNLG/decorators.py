@@ -20,76 +20,85 @@ def handle_capitalize(splitters, *args):
         new_string = a
         matchs = list()
         if i == 0:
-            match = re.search("".join([r"^", balise_regex(), r"*( *\n*)*[a-z]"]), new_string)
+            match = re.search("".join([r"^", "( |\n|<[^>]*>)*[a-z]"]), new_string)
             if match is not None:
                 matchs.append(match)
-        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( *\n*)*", balise_regex(), "*( *\n*)*[a-z]"]), new_string)
+        matchs += re.finditer("".join(["(\\" + "|\\".join(splitters), ")( |\n|<[^>]*>)*[a-z]"]), new_string)
         for match in matchs:
             new_string = new_string[:match.span()[1] - 1] + new_string[match.span()[1] - 1].upper() + new_string[match.span()[1]:]
         capitalized_text.append(new_string)
     return capitalized_text
 
 
-def new_contraction(text, contract):
+def new_contraction(text, contracts):
     re_contract = False
-    for first_word, v in contract.items():
-        first_word = "|".join([first_word, first_word.capitalize()])
+    for contract in contracts:
         candidats = list()
-        for first_part_replacer, second_word in v.items():
-
-            for second in second_word:
-                if isinstance(second, tuple):
-                    second_replacer = second[1]
-                    second = "|".join([second[0], second[0].capitalize()])
-                else:
-                    second_replacer = second
-                    second = "|".join([second, second.capitalize()])
-                for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", first_word, ")(<[^>]*>)*([^<a-zA-Z])+(", second, ")"]), text):
-                    replacer = list()
-                    for g in match.groups():
-                        replacer.append(g if g is not None else "")
-                    replacer[2] = first_part_replacer
-                    replacer[-1] = second_replacer.capitalize() if replacer[-1][0].isupper() else second_replacer
-                    replacer.pop(0)
-                    candidats.append((match.group(), replacer))
+        for search, replace in contract.items():
+            if len(re.findall("".join(["(", search[0], ")(<[^>]*>)*( +\n*)+(", search[1], ")"]), text)) == 0:
+                continue
+            for match in re.finditer("".join(["(([^a-zA-Z]+|^))(", search[0], ")(<[^>]*>)*( +\n*)+(", search[1], ")"]), text):
+                replacer = list()
+                for g in match.groups():
+                    replacer.append(g if g is not None else "")
+                replacer[2] = replace[0]
+                replacer[-1] = replace[1].capitalize() if replacer[-1][0].isupper() else replace[1]
+                replacer.pop(0)
+                candidats.append((match.group(), replacer))
         if len(candidats) > 0:
             candidats.sort(key=lambda t: len(t[0]), reverse=True)
-            text = re.sub(candidats[0][0], "".join(candidats[0][1]), text)
+            text = text.replace(candidats[0][0], "".join(candidats[0][1]))
             re_contract = True
     if re_contract:
-        text = new_contraction(text, contract)
+        text = new_contraction(text, contracts)
     return text
 
 
 def handle_dots(text):
-    matchs = re.finditer("".join([r"\.+(", balise_regex(), r"*([^a-zA-Z0-1])*)*\.+"]), text)
+    matchs = re.finditer("\\.\\W*\\.", text)
     nb_removed = 0
-    re_check = False
     for match in matchs:
         nb_dots = len(re.findall(r"\.", match.group()))
-        if nb_dots == 2 or nb_dots > 3:
+        cleaned_dots = match.group()
+        cleaned_dots = re.sub(" ", "", cleaned_dots)
+        if nb_dots == 2:
+            cleaned_dots = match.group()[:-1]
+            text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
+        elif nb_dots >= 3:
             if nb_dots > 3:
-                re_check = True
-            text = text[:match.span()[1] - 1 - nb_removed] + text[match.span()[1] - nb_removed:]
-            nb_removed += 1
-        elif nb_dots == 3:
-            text, nb_removed = remove_match_spaces(text, match, nb_removed)
-    if re_check:
-        text = handle_dots(text)
+                cleaned_dots = re.sub("\\.", "", cleaned_dots, count=nb_dots - 3)
+            text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
+        nb_removed += len(match.group()) - len(cleaned_dots)
     return text
 
 
 def remove_spaces_before(text, char, keep_one=False):
     nb_removed = 0
-    for match in re.finditer("".join([space_regex(), "+", "\\", char]), text):
-        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
+    for inner_match in re.finditer(">[^<]+", text):
+
+        inner_text = inner_match.group()
+        inner_text_spaces = inner_text.replace(char, " " + char)
+
+        sub = "".join([" ", char]) if keep_one else char
+        inner_text_sub = re.sub("".join([" *\\", char]), sub, inner_text_spaces)
+        if inner_text_sub != inner_text_spaces or inner_text_sub != inner_text:
+            text = text[:inner_match.span()[0] - nb_removed] + inner_text_sub + text[inner_match.span()[1] - nb_removed:]
+            nb_removed += len(inner_text) - len(inner_text_spaces)
+            nb_removed += len(inner_text_spaces) - len(inner_text_sub)
     return text
 
 
 def remove_spaces_after(text, char, keep_one=False):
     nb_removed = 0
-    for match in re.finditer("".join(["\\", char, space_regex(), "+"]), text):
-        text, nb_removed = remove_match_spaces(text, match, nb_removed, keep_one)
+    for inner_match in re.finditer(">[^<]+", text):
+        inner_text = inner_match.group()
+        inner_text_spaces = inner_text.replace(char, char + " ")
+        sub = "".join([char, " "]) if keep_one else char
+        inner_text_sub = re.sub("".join(["\\", char, " *"]), sub, inner_text_spaces)
+        if inner_text_sub != inner_text_spaces or inner_text_sub != inner_text:
+            text = text[:inner_match.span()[0] - nb_removed] + inner_text_sub + text[inner_match.span()[1] - nb_removed:]
+            nb_removed += len(inner_text) - len(inner_text_spaces)
+            nb_removed += len(inner_text_spaces) - len(inner_text_sub)
     return text
 
 
@@ -109,42 +118,38 @@ def remove_match_spaces(text, match, nb_removed, keep_one=False):
 
 
 def handle_special_spaces(text, ponct):
+    text = "".join(["<remove>", text, "<remove>"])
     for char in ponct["space_after"]:
-        text = text.replace(char, "".join([char, " "]))
         text = remove_spaces_before(text, char)
         text = remove_spaces_after(text, char, True)
 
     for char in ponct["space_before"]:
-        text = text.replace(char, "".join([" ", char]))
         text = remove_spaces_before(text, char, True)
         text = remove_spaces_after(text, char)
 
     for char in ponct["space_before_and_after"]:
-        text = text.replace(char, "".join([" ", char, " "]))
         text = remove_spaces_before(text, char, True)
         text = remove_spaces_after(text, char, True)
 
     for char in ponct["no_spaces"]:
         text = remove_spaces_before(text, char)
         text = remove_spaces_after(text, char)
+
+    text = text.replace("<remove>", "")
     return text
 
 
 def handle_redondant_spaces(text):
     nb_removed = 0
-    for match in re.finditer("".join([space_regex(), "+"]), text):
+    for match in re.finditer("".join([" +"]), text):
         text, nb_removed = remove_match_spaces(text, match, nb_removed, True)
 
     text = re.sub("".join([r" ", balise_regex(), "*$"]), "", text)
     return text
 
 
-def space_regex():
-    return "".join(["(", balise_regex(), "* +(", balise_regex(), "*)*)"])
-
-
 def balise_regex():
-    return "(<[^>]*>)"
+    return "(<[^>]*>( *\n*)*)"
 
 
 def beautifier(f_ret, ponct, contract):
