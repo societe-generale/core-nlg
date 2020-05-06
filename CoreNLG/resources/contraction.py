@@ -27,7 +27,7 @@ contraction = {
         "puisque": {"puisqu'": ["on", "il"]},
         "lorsque": {"lorsqu'": ["on", "il"]},
         "jusque": {
-            "jusqu'": ["à", "en", "alors", "ici"]
+            "jusqu'": ["à", "en", "alors", "ici", "au", "aux"]
         },
         "à": {
             "au": [("le", "")],
