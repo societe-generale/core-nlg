@@ -72,10 +72,10 @@ class NlgTools:
             first_word = "|".join([first_word, first_word.capitalize()])
             for first_part_replacer, second_word in v.items():
                 for second in second_word:
-                    try:
+                    if isinstance(second, tuple):
                         second_replacer = second[1]
                         second = "|".join([second[0], second[0].capitalize()])
-                    except IndexError:
+                    else:
                         second_replacer = second
                         second = "|".join([second, second.capitalize()])
                     secondary.update({(first_word, second): (first_part_replacer, second_replacer)})
