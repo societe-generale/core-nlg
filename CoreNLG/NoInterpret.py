@@ -8,11 +8,11 @@ from CoreNLG.tools import take_second_arg_if_first_none
 
 interpretable_char = {
     ".": "DOT",
-    ",": "COMA",
+    ",": "COMMA",
     '"': "QUOTE",
     "?": "INTERROGATION",
     "!": "EXCLAMATION",
-    ":": "DOUBLEDOTS",
+    ":": "COLON",
     "/": "SLASH",
     " ": "SPACE",
     ";": "SEMICOLON",
