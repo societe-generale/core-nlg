@@ -52,29 +52,31 @@ class Synonym:
 
             return pattern
 
-    def __handle_synonym(self, pattern_to_evaluate):
-        tmp_sbp = self.synos_by_pattern.copy()
-        tmp_synos_written = self._synos_written.copy()
-        tmp_active_keyvals = self._keyvals.active_keyvals.copy()
+    def __handle_synonym(self, pattern):
+        c_sbp = self.synos_by_pattern.copy()
+        c_prev_syn = self._synos_written.copy()
+        c_active_keys = self._keyvals.active_keyvals.copy()
 
-        best_eval, keyvals = self.__get_best_leaf(pattern_to_evaluate, tmp_sbp, tmp_synos_written, tmp_active_keyvals)
+        draw_syn, active_keys, drawn_syns_in_tree = self.__get_best_leaf(pattern, c_sbp, c_prev_syn, c_active_keys)
 
         # Updating chosen synonyms
-        to_save = ' '.join(best_eval.strip().split())
-        self._synos_written.append(to_save)
+        clean_syn = ' '.join(draw_syn.strip().split())
+        self._synos_written += drawn_syns_in_tree + [clean_syn]
 
         # Activating keyvals
-        self._keyvals.active_keyvals = keyvals
+        self._keyvals.active_keyvals = active_keys
 
-        return to_save
+        return clean_syn
 
     def __get_best_leaf(self, pattern, sbp, previous_synos, active_keyvals):
         kv_context = self._keyvals.keyval_context
 
         keyvals = []
+        synos_tmp = []
         for i, choice in enumerate(sbp[pattern]):
-            syno_tmp = []
+            # syno_tmp = []
             keyvals.append(active_keyvals.copy())
+            synos_tmp.append([])
 
             # temporary activation of the keyvals for this choice
             if pattern in kv_context and choice in kv_context[pattern]:
@@ -83,7 +85,7 @@ class Synonym:
                     keys = [keys]
                 keyvals[i] += [key for key in keys if key not in keyvals[i]]
 
-            node_list = [match.group() for match in re.finditer('(\*|~)[0-9]+(\*|~)', choice)]
+            node_list = [match.group() for match in re.finditer('[*~][0-9]+[*~]', choice)]
             for node in node_list:
 
                 is_post_eval = node[0] == '~'
@@ -93,26 +95,25 @@ class Synonym:
                     sbp[pattern][i] = sbp[pattern][i].replace(node, if_active if key in keyvals[i] else if_inactive)
                     keyvals[i].remove(key) if clean and key in keyvals[i] else None
                 else:
-                    best_syno, kv = self.__get_best_leaf(node, sbp, previous_synos + syno_tmp, keyvals[i])
-                    syno_tmp.append(' '.join(best_syno.strip().split())) if len(node_list) > 1 else None
-                    sbp[pattern][i] = sbp[pattern][i].replace(node, best_syno)
+                    prev_syns = previous_synos + synos_tmp[i]
+                    drawn_syn, kv, syns_in_tree = self.__get_best_leaf(node, sbp, prev_syns, keyvals[i])
+                    synos_tmp[i].append(' '.join(drawn_syn.strip().split()))
+                    sbp[pattern][i] = sbp[pattern][i].replace(node, drawn_syn)
                     keyvals[i] = kv
 
         best_syno = self.__get_best_syno(sbp[pattern], previous_synos)
-        return best_syno, keyvals[sbp[pattern].index(best_syno)]
+        index_best_syno = sbp[pattern].index(best_syno)
+        return best_syno, keyvals[index_best_syno], synos_tmp[index_best_syno]
 
     def __get_best_syno(self, synos, previous_synos):
         scores = {}
-        last_occ = {}
-        for word in synos:
-            scores[word] = 0
-            last_occ[word] = 0
-
         done = False
-        p = previous_synos.copy()
+        prev_syns = previous_synos.copy()
+        result = []
+
         while not done:
             for syno in synos:
-                scores[syno] = self.__get_score(syno, previous_synos)
+                scores[syno] = self.__get_score(syno, prev_syns)
 
             sorted_scores = sorted(scores.values(), key=lambda x: (x[0], -x[1]), reverse=True)
             max_score = sorted_scores[0]
@@ -122,8 +123,8 @@ class Synonym:
                 if scores[key] == max_score:
                     result.append(key)
 
-            p = p[:-max_score[0] - 1]
-            done = len(result) == 1 or not p
+            prev_syns = prev_syns[:-max_score[0] - 1]
+            done = len(result) == 1 or not prev_syns
 
         return random.choice(result)
 
@@ -134,7 +135,7 @@ class Synonym:
         - 2 synonyms are considered similar if one of them has more than 'syno_similarity_threshold' % of similar words with the other one
         """
         min_length_following_letters = 3
-        word_similarity_threshold = 0.75
+        word_similarity_threshold = 0.6
         syno_similarity_threshold = 0.25
         significant_word_length = 3
 
@@ -162,7 +163,7 @@ class Synonym:
         return (len(previous_synos), 0)
 
     def handle_patterns(self, arg):
-        first_node = re.search('(\*|~)[0-9]+(\*|~)', arg)
+        first_node = re.search('[*~][0-9]+[*~]', arg)
 
         while first_node is not None:
             node = first_node.group()
@@ -172,6 +173,6 @@ class Synonym:
             else:
                 arg = arg.replace(node, self.__handle_synonym(node))
 
-            first_node = re.search('(\*|~)[0-9]+(\*|~)', arg)
+            first_node = re.search('[*~][0-9]+[*~]', arg)
 
         return arg
