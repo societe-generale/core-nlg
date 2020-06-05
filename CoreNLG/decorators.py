@@ -60,7 +60,7 @@ def new_contraction(text, contracts):
 
 
 def handle_dots(text):
-    matchs = re.finditer(r"(\.((<[^>]*>)*\W*)*){2,}", text)
+    matchs = re.finditer(r"(\.((<[^>]*>)|\W)*){2,}", text)
     nb_removed = 0
     for match in matchs:
         nb_dots = len(re.findall(r"\.", match.group()))
