@@ -83,7 +83,7 @@ def handle_redundant_poncts(text, ponct):
             if char == ".":
                 continue
             char = "".join(["\\", char])
-            matchs = re.finditer("".join(["(", char, "((<.*>)*\\W*)*){2,}"]), text)
+            matchs = re.finditer("".join(["(", char, "((<[^>]*>)*\\W*)*){2,}"]), text)
             nb_removed = 0
             for match in matchs:
                 cleaned_dots = match.group()
