@@ -77,6 +77,23 @@ def handle_dots(text):
     return text
 
 
+def handle_redundant_poncts(text, ponct):
+    for v in ponct.values():
+        for char in v:
+            if char == ".":
+                continue
+            char = "".join(["\\", char])
+            matchs = re.finditer("".join(["(", char, "((<.*>)*\\W*)*){2,}"]), text)
+            nb_removed = 0
+            for match in matchs:
+                cleaned_dots = match.group()
+                nb_dots = len(re.findall(char, cleaned_dots))
+                cleaned_dots = re.sub(char, "", cleaned_dots, count=nb_dots - 1)
+                text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
+                nb_removed += len(match.group()) - len(cleaned_dots)
+    return text
+
+
 def remove_spaces_before(text, char, keep_one=False):
     nb_removed = 0
     for inner_match in re.finditer(">[^<]+", text):
@@ -162,6 +179,7 @@ def beautifier(f_ret, ponct, contract):
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
     f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)
+    f_ret = handle_redundant_poncts(f_ret, ponct)
     f_ret = handle_redondant_spaces(f_ret)
     for key, value in interpretable_char_reverse.items():
         f_ret = f_ret.replace("#" + key + "#", value)
