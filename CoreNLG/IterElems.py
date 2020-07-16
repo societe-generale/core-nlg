@@ -101,7 +101,7 @@ class IterElems:
                 elem += str(self.end_of_bullet)
 
             if "<" in elem and ">" in elem:
-                elem = handle_string_to_html(builder.SPAN, elem, builder.CLASS("to_delete"))
+                elem = html.fromstring(elem)
 
             ul.append(builder.LI(elem))
             i += 1
