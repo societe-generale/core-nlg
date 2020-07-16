@@ -48,7 +48,7 @@ class Number:
         if thousand_sep is not None:
             self.thousand_sep = thousand_sep
         return self.__no_interpret(
-            _format.format(_sign, num, self.short).replace(",", self.thousand_sep).replace(".", self.sep)
+            _format.format(_sign, num, self.short).replace(",", "#THSEP#").replace(".", self.sep).replace("#THSEP#", self.thousand_sep)
         )
 
 
