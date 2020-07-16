@@ -77,7 +77,7 @@ def handle_dots(text):
     return text
 
 
-def handle_redundant_poncts(text, ponct):
+def handle_redundant_punctuations(text, ponct):
     for v in ponct.values():
         for char in v:
             if char == ".":
@@ -179,7 +179,7 @@ def beautifier(f_ret, ponct, contract):
     f_ret = " ".join(handle_capitalize(copy.copy(ponct["capitalize"]), f_ret))
     f_ret = handle_special_spaces(f_ret, ponct)
     f_ret = handle_dots(f_ret)
-    f_ret = handle_redundant_poncts(f_ret, ponct)
+    f_ret = handle_redundant_punctuations(f_ret, ponct)
     f_ret = handle_redondant_spaces(f_ret)
     for key, value in interpretable_char_reverse.items():
         f_ret = f_ret.replace("#" + key + "#", value)
