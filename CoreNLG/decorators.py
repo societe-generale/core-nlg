@@ -60,14 +60,14 @@ def new_contraction(text, contracts):
 
 
 def handle_dots(text):
-    matchs = re.finditer("\\.\\W*\\.", text)
+    matchs = re.finditer(r"(\.((<[^>]*>)|\W)*){2,}", text)
     nb_removed = 0
     for match in matchs:
         nb_dots = len(re.findall(r"\.", match.group()))
         cleaned_dots = match.group()
-        cleaned_dots = re.sub(" ", "", cleaned_dots)
+        cleaned_dots = re.sub(" \\.", ".", cleaned_dots)
         if nb_dots == 2:
-            cleaned_dots = match.group()[:-1]
+            cleaned_dots = re.sub("\\.", "", cleaned_dots, count=1)
             text = "".join([text[:match.span()[0] - nb_removed], cleaned_dots, text[match.span()[1] - nb_removed:]])
         elif nb_dots >= 3:
             if nb_dots > 3:
