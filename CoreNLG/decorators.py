@@ -77,8 +77,8 @@ def handle_dots(text):
     return text
 
 
-def handle_redundant_punctuations(text, ponct):
-    for v in ponct.values():
+def handle_redundant_punctuations(text, punctuations):
+    for v in punctuations.values():
         for char in v:
             if char == ".":
                 continue
