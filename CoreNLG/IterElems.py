@@ -142,8 +142,7 @@ class IterElems:
         return elem_list[:self.max_elem]
 
 
-def enum(self,
-         pattern,
+def enum(pattern,
          max_elem=None,
          nb_elem_bullet=None,
          begin_w=None,
