@@ -141,12 +141,12 @@ class NlgTools:
             },
             "synonyms": [{
                 "symbol": pattern,
-                "choices": {
-                    "raw": self._synonym.synos_by_pattern[pattern],
-                    "beautiful": [self.beautify(syno) for syno in self._synonym.synos_by_pattern[pattern]]
-                }}
-                for pattern in patterns if pattern[0] in ['*', '%']
-            ],
+                "choices": [{
+                    "raw": syno,
+                    "beautiful": self.beautify(syno),
+                    "keys": self._keyvals.keyval_context[pattern].get(syno)
+                } for syno in self._synonym.synos_by_pattern[pattern]]
+            } for pattern in patterns if pattern[0] in ['*', '%']],
             "post_evals": [{
                 "symbol": pattern,
                 "infos": {
@@ -160,9 +160,8 @@ class NlgTools:
                         "beautiful": self.beautify(self._keyvals.post_evals[pattern][2])
                     },
                     "deactivate": self._keyvals.post_evals[pattern][3]
-                }}
-                for pattern in patterns if pattern[0] == '~'
-            ]
+                }
+            } for pattern in patterns if pattern[0] == '~']
         }
 
     def get_all_texts(self, text):
