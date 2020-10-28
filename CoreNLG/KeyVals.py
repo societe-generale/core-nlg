@@ -12,7 +12,7 @@ class KeyVals:
         self.keyval_context = {}
 
     def post_eval(self, keyval, if_active='', if_inactive='', clean=False):
-        pattern = f"~{len(self.post_evals) + 1}"
+        pattern = f"~{len(self.post_evals) + 1}~"
         self.post_evals[pattern] = (keyval, if_active, if_inactive, clean)
         return pattern
 
