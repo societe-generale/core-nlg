@@ -63,6 +63,12 @@ class AbstractDocument(object, metaclass=ABCMeta):
     def open_in_browser(self):
         pass
 
+    def get_text_details(self):
+        return [section.get_text_details() for section in self._sections]
+
+    def get_all_texts(self):
+        return [section.get_all_texts() for section in self._sections]
+
 
 class DocumentHtml(AbstractDocument):
     def __init__(self, datas, lang, freeze, title, css_path):
@@ -236,6 +242,9 @@ class AbstractSection(object, metaclass=ABCMeta):
                 elem_attr = kwargs["html_elem_attr"]
         return elem, elem_attr
 
+    def get_text_details(self):
+        pass
+
 
 class SectionHtml(AbstractSection):
     def __init__(self, datas, lang, freeze, elem="div", elem_attr=None, **kwargs):
@@ -249,6 +258,12 @@ class SectionHtml(AbstractSection):
     def to_file(self, path):
         with open(path, "w", encoding="utf-8") as f:
             f.write(self.html)
+
+    def get_text_details(self):
+        return self._nlg.get_text_details(self.text)
+
+    def get_all_texts(self):
+        return self._nlg.get_all_texts(self.text)
 
 
 class SectionXml(AbstractSection):

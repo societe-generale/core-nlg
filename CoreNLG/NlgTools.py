@@ -4,6 +4,7 @@ created on 02/12/2019 16:03
 @author: fgiely
 """
 import os
+import re
 
 from lxml import html
 from lxml import etree
@@ -101,11 +102,12 @@ class NlgTools:
             if not no_space:
                 text.append(" ")
 
-        self._synonym.smart_syno_lvl = 0
-        self._synonym.synos_by_pattern = {}
         text = "".join(text)
         self._text += text
         return text
+
+    def beautify(self, text):
+        return beautifier(text, self._ponct, self._contract)
 
     def __beautifier(self):
         """
@@ -129,3 +131,80 @@ class NlgTools:
             return etree.fromstring(self.add_tag(self.elem, self.text))
         return etree.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
 
+    def get_text_details(self, text):
+        patterns = self._synonym.get_found_patterns(text)
+
+        return {
+            "text": {
+                "raw": text,
+                "beautiful": self.beautify(text)
+            },
+            "synonyms": [{
+                "symbol": pattern,
+                "choices": {
+                    "raw": self._synonym.synos_by_pattern[pattern],
+                    "beautiful": [self.beautify(syno) for syno in self._synonym.synos_by_pattern[pattern]]
+                }}
+                for pattern in patterns if pattern[0] in ['*', '%']
+            ],
+            "post_evals": [{
+                "symbol": pattern,
+                "infos": {
+                    "key": self._keyvals.post_evals[pattern][0],
+                    "if_active": {
+                        "raw": self._keyvals.post_evals[pattern][1],
+                        "beautiful": self.beautify(self._keyvals.post_evals[pattern][1])
+                    },
+                    "if_inactive": {
+                        "raw": self._keyvals.post_evals[pattern][2],
+                        "beautiful": self.beautify(self._keyvals.post_evals[pattern][2])
+                    },
+                    "deactivate": self._keyvals.post_evals[pattern][3]
+                }}
+                for pattern in patterns if pattern[0] == '~'
+            ]
+        }
+
+    def get_all_texts(self, text):
+        return [self.beautify(combination) for combination in self.__get_all_combinations(text, [])]
+
+    def __get_all_combinations(self, text, active_keys):
+        first_node = re.search('[*~%][0-9]+[*~%]', text)
+
+        if first_node is not None:
+            pattern = first_node.group()
+
+            if pattern[0] in ['*', '%']:
+                choices = []
+
+                for syno in self._synonym.synos_by_pattern[pattern]:
+                    try:
+                        syno_keys = self._keyvals.keyval_context[pattern][syno]
+                    except:
+                        syno_keys = []
+
+                    try:
+                        choices.append((text.replace(pattern, syno, 1), active_keys + syno_keys))
+                    except:
+                        choices.append((text.replace(pattern, syno, 1), active_keys + [syno_keys]))
+
+                return [
+                    combination for choice in choices for combination in
+                    self.__get_all_combinations(choice[0], choice[1])
+                ]
+
+            elif pattern[0] == '~':
+                key = self._keyvals.post_evals[pattern][0]
+
+                new_text = text.replace(
+                    pattern,
+                    self._keyvals.post_evals[pattern][1 if key in active_keys else 2],
+                    1
+                )
+
+                if self._keyvals.post_evals[pattern][3]:
+                    active_keys = [k for k in active_keys if k != key]
+
+                return self.__get_all_combinations(new_text, active_keys)
+
+        return [text]

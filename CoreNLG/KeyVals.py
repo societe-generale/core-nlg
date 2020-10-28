@@ -12,13 +12,9 @@ class KeyVals:
         self.keyval_context = {}
 
     def post_eval(self, keyval, if_active='', if_inactive='', clean=False):
-        # in freeze or random mode, keyval has already be activated
-        if keyval in self.active_keyvals:
-            return self.handle_post_eval((keyval, if_active, if_inactive, clean))
-        else:
-            pattern = '~' + str(len(self.post_evals) + 1) + '~'
-            self.post_evals[pattern] = (keyval, if_active, if_inactive, clean)
-            return pattern
+        pattern = f"~{len(self.post_evals) + 1}"
+        self.post_evals[pattern] = (keyval, if_active, if_inactive, clean)
+        return pattern
 
     def handle_post_eval(self, args):
         keyval, if_active, if_inactive, clean = args

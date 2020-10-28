@@ -6,7 +6,7 @@ created on 06/12/2019 16:31
 import difflib
 import random
 import re
-import string
+from copy import deepcopy
 
 
 class Synonym:
@@ -15,7 +15,8 @@ class Synonym:
         self._keyvals = keyvals
 
         self._synos_written = []
-        self.smart_syno_lvl = 0
+        self.smart_syno_lvl = 1
+        self.random_syno_lvl = 1
         self.synos_by_pattern = {}
 
     def synonym(self, *words, mode="smart"):
@@ -37,36 +38,51 @@ class Synonym:
             else:
                 s_words.append(word)
 
-        if self._freeze_syno or mode == 'random':
-            syno_to_display = s_words[0] if self._freeze_syno else random.choice(s_words)
-            if syno_to_display in tmp_keyvals:
-                self._keyvals.active_keyvals.append(tmp_keyvals[syno_to_display])
-            return syno_to_display
-        else:
-            pattern = "*" + str(self.smart_syno_lvl + 1) + "*"
-
-            keyval_context[pattern] = tmp_keyvals
-
+        if mode == 'random':
+            pattern = f"%{self.random_syno_lvl}%"
+            self.random_syno_lvl += 1
+        elif mode == 'smart':
+            pattern = f"*{self.smart_syno_lvl}*"
             self.smart_syno_lvl += 1
-            self.synos_by_pattern[pattern] = s_words
 
-            return pattern
+        keyval_context[pattern] = tmp_keyvals
+        self.synos_by_pattern[pattern] = s_words
+        return pattern
+
+    def __get_random_synonym(self, choices):
+        return random.choice(choices)
 
     def __handle_synonym(self, pattern):
-        c_sbp = self.synos_by_pattern.copy()
-        c_prev_syn = self._synos_written.copy()
-        c_active_keys = self._keyvals.active_keyvals.copy()
+        if self._freeze_syno or pattern[0] == '%':
+            if self._freeze_syno:
+                choice = self.synos_by_pattern[pattern][0]
+            else:
+                choice = self.__get_random_synonym(self.synos_by_pattern[pattern])
 
-        draw_syn, active_keys, drawn_syns_in_tree = self.__get_best_leaf(pattern, c_sbp, c_prev_syn, c_active_keys)
+            related_keys = self._keyvals.keyval_context.get(choice)
 
-        # Updating chosen synonyms
-        clean_syn = ' '.join(draw_syn.strip().split())
-        self._synos_written += drawn_syns_in_tree + [clean_syn]
+            if related_keys:
+                try:
+                    self._keyvals.active_keyvals += related_keys
+                except TypeError:
+                    self._keyvals.active_keyvals += [related_keys]
 
-        # Activating keyvals
-        self._keyvals.active_keyvals = active_keys
+            return choice
+        else:
+            c_sbp = deepcopy(self.synos_by_pattern)
+            c_prev_syn = deepcopy(self._synos_written)
+            c_active_keys = deepcopy(self._keyvals.active_keyvals)
 
-        return clean_syn
+            draw_syn, active_keys, drawn_syns_in_tree = self.__get_best_leaf(pattern, c_sbp, c_prev_syn, c_active_keys)
+
+            # Updating chosen synonyms
+            clean_syn = ' '.join(draw_syn.strip().split())
+            self._synos_written += drawn_syns_in_tree + [clean_syn]
+
+            # Activating keyvals
+            self._keyvals.active_keyvals = active_keys
+
+            return clean_syn
 
     def __get_best_leaf(self, pattern, sbp, previous_synos, active_keyvals):
         kv_context = self._keyvals.keyval_context
@@ -163,7 +179,7 @@ class Synonym:
         return (len(previous_synos), 0)
 
     def handle_patterns(self, arg):
-        first_node = re.search('[*~][0-9]+[*~]', arg)
+        first_node = re.search('[*%~][0-9]+[*%~]', arg)
 
         while first_node is not None:
             node = first_node.group()
@@ -173,6 +189,17 @@ class Synonym:
             else:
                 arg = arg.replace(node, self.__handle_synonym(node))
 
-            first_node = re.search('[*~][0-9]+[*~]', arg)
+            first_node = re.search('[*~%][0-9]+[*~%]', arg)
 
         return arg
+
+    def get_found_patterns(self, text):
+        patterns = [match.group() for match in re.finditer('[*~%][0-9]+[*~%]', text)]
+        for pattern in patterns:
+            if pattern[0] in ['*', '%']:
+                for syno in self.synos_by_pattern[pattern]:
+                    patterns += self.get_found_patterns(syno)
+            else:
+                for syno in self._keyvals.post_evals[pattern][1:2]:
+                    patterns += self.get_found_patterns(syno)
+        return list(dict.fromkeys(patterns))
