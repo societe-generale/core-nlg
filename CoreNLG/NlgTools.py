@@ -3,6 +3,8 @@
 created on 02/12/2019 16:03
 @author: fgiely
 """
+import hashlib
+import json
 import os
 import re
 
@@ -132,32 +134,77 @@ class NlgTools:
         return etree.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
 
     def get_text_details(self, text):
+        hash_by_pattern = {}
         patterns = self._synonym.get_found_patterns(text)
+
+        def hash_dict(dict_input):
+            return hashlib.sha256(json.dumps(dict_input).encode('utf-8')).hexdigest()
+
+        def replace_pattern_by_hash(text):
+            for pattern in hash_by_pattern:
+                text = text.replace(pattern, hash_by_pattern[pattern])
+            return text
+
+        def create_hash(pattern):
+            if pattern[0] in ['*', '%']:
+                s_list = []
+                for syno in self._synonym.synos_by_pattern[pattern]:
+                    beautiful_syno = self.beautify(syno)
+                    keys = self._keyvals.keyval_context[pattern].get(syno)
+                    try:
+                        s_list.append([beautiful_syno, sorted(keys)])
+                    except:
+                        s_list.append([beautiful_syno, keys])
+                s_hash = hash_dict(sorted(s_list, key=lambda x: x[0]))
+            else:
+                s_hash = hash_dict([
+                    self._keyvals.post_evals[pattern][0],
+                    self.beautify(self._keyvals.post_evals[pattern][1]),
+                    self.beautify(self._keyvals.post_evals[pattern][2]),
+                    self._keyvals.post_evals[pattern][3]
+                ])
+
+            hash_by_pattern[pattern] = s_hash
+
+        def create_all_hash(text):
+            patterns = [match.group() for match in re.finditer('[*~%][0-9]+[*~%]', text)]
+            for pattern in patterns:
+                if pattern not in hash_by_pattern:
+                    if pattern[0] in ['*', '%']:
+                        for syno in self._synonym.synos_by_pattern[pattern]:
+                            create_all_hash(syno)
+                        create_hash(pattern)
+                    else:
+                        for syno in self._keyvals.post_evals[pattern][1:3]:
+                            create_all_hash(syno)
+                        create_hash(pattern)
+
+        create_all_hash(text)
 
         return {
             "text": {
-                "raw": text,
-                "beautiful": self.beautify(text)
+                "raw": replace_pattern_by_hash(text),
+                "beautiful": replace_pattern_by_hash(self.beautify(text))
             },
             "synonyms": [{
-                "symbol": pattern,
+                "symbol": hash_by_pattern[pattern],
                 "choices": [{
-                    "raw": syno,
-                    "beautiful": self.beautify(syno),
+                    "raw": replace_pattern_by_hash(syno),
+                    "beautiful": replace_pattern_by_hash(self.beautify(syno)),
                     "keys": self._keyvals.keyval_context[pattern].get(syno)
                 } for syno in self._synonym.synos_by_pattern[pattern]]
             } for pattern in patterns if pattern[0] in ['*', '%']],
             "post_evals": [{
-                "symbol": pattern,
+                "symbol": hash_by_pattern[pattern],
                 "infos": {
                     "key": self._keyvals.post_evals[pattern][0],
                     "if_active": {
-                        "raw": self._keyvals.post_evals[pattern][1],
-                        "beautiful": self.beautify(self._keyvals.post_evals[pattern][1])
+                        "raw": replace_pattern_by_hash(self._keyvals.post_evals[pattern][1]),
+                        "beautiful": replace_pattern_by_hash(self.beautify(self._keyvals.post_evals[pattern][1]))
                     },
                     "if_inactive": {
-                        "raw": self._keyvals.post_evals[pattern][2],
-                        "beautiful": self.beautify(self._keyvals.post_evals[pattern][2])
+                        "raw": replace_pattern_by_hash(self._keyvals.post_evals[pattern][2]),
+                        "beautiful": replace_pattern_by_hash(self.beautify(self._keyvals.post_evals[pattern][2]))
                     },
                     "deactivate": self._keyvals.post_evals[pattern][3]
                 }
