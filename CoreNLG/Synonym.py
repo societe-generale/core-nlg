@@ -200,6 +200,6 @@ class Synonym:
                 for syno in self.synos_by_pattern[pattern]:
                     patterns += self.get_found_patterns(syno)
             else:
-                for syno in self._keyvals.post_evals[pattern][1:2]:
+                for syno in self._keyvals.post_evals[pattern][1:3]:
                     patterns += self.get_found_patterns(syno)
         return list(dict.fromkeys(patterns))
