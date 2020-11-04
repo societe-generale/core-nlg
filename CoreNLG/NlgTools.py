@@ -134,7 +134,6 @@ class NlgTools:
         return etree.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
 
     def get_text_details(self, text):
-        # hash_by_pattern = {}
         id_by_pattern = {}
         patterns = self._synonym.get_found_patterns(text)
 
@@ -165,7 +164,7 @@ class NlgTools:
                     keys = self._keyvals.keyval_context[pattern].get(syno)
                     try:
                         s_list.append([beautiful_syno, sorted(keys)])
-                    except:
+                    except TypeError:
                         s_list.append([beautiful_syno, keys])
                 s_hash = hash_dict(sorted(s_list, key=lambda x: x[0]))
             else:
