@@ -18,8 +18,9 @@ class Synonym:
         self.smart_syno_lvl = 1
         self.random_syno_lvl = 1
         self.synos_by_pattern = {}
+        self.id_by_pattern = {}
 
-    def synonym(self, *words, mode="smart"):
+    def synonym(self, *words, mode="smart", non_reg_id=None):
         s_words = []
         tmp_keyvals = {}
         keyval_context = self._keyvals.keyval_context
@@ -31,7 +32,10 @@ class Synonym:
         for word in words:
             if type(word) is tuple:
                 s_words.append(word[0])
-                tmp_keyvals[word[0]] = word[1]
+                if isinstance(word[1], str):
+                    tmp_keyvals[word[0]] = [word[1]]
+                else:
+                    tmp_keyvals[word[0]] = word[1]
             elif type(word) is list:
                 for w in word:
                     s_words.append(w)
@@ -47,6 +51,7 @@ class Synonym:
 
         keyval_context[pattern] = tmp_keyvals
         self.synos_by_pattern[pattern] = s_words
+        self.id_by_pattern[pattern] = non_reg_id
         return pattern
 
     def __get_random_synonym(self, choices):
@@ -97,8 +102,6 @@ class Synonym:
             # temporary activation of the keyvals for this choice
             if pattern in kv_context and choice in kv_context[pattern]:
                 keys = kv_context[pattern][choice]
-                if type(keys) is not list:
-                    keys = [keys]
                 keyvals[i] += [key for key in keys if key not in keyvals[i]]
 
             node_list = [match.group() for match in re.finditer('[*~][0-9]+[*~]', choice)]
@@ -174,9 +177,9 @@ class Synonym:
                         similar_words += 1
 
             if similar_words >= max(len(previous_syno_words), len(syno_to_evaluate_words)) * syno_similarity_threshold:
-                return (i, similar_words)
+                return i, similar_words
 
-        return (len(previous_synos), 0)
+        return len(previous_synos), 0
 
     def handle_patterns(self, arg):
         first_node = re.search('[*%~][0-9]+[*%~]', arg)

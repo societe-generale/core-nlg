@@ -10,10 +10,12 @@ class KeyVals:
         self.active_keyvals = []
         self.post_evals = {}
         self.keyval_context = {}
+        self.id_by_pattern = {}
 
-    def post_eval(self, keyval, if_active='', if_inactive='', clean=False):
+    def post_eval(self, keyval, if_active='', if_inactive='', clean=False, non_reg_id=None):
         pattern = f"~{len(self.post_evals) + 1}~"
         self.post_evals[pattern] = (keyval, if_active, if_inactive, clean)
+        self.id_by_pattern[pattern] = non_reg_id
         return pattern
 
     def handle_post_eval(self, args):

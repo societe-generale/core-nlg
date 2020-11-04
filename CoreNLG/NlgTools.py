@@ -134,16 +134,28 @@ class NlgTools:
         return etree.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
 
     def get_text_details(self, text):
-        hash_by_pattern = {}
+        # hash_by_pattern = {}
+        id_by_pattern = {}
         patterns = self._synonym.get_found_patterns(text)
 
         def hash_dict(dict_input):
             return hashlib.sha256(json.dumps(dict_input).encode('utf-8')).hexdigest()
 
         def replace_pattern_by_hash(text):
-            for pattern in hash_by_pattern:
-                text = text.replace(pattern, hash_by_pattern[pattern])
+            for pattern in id_by_pattern:
+                text = text.replace(pattern, id_by_pattern[pattern])
             return text
+
+        def get_id(pattern):
+            if pattern[0] in ['*', '%']:
+                id = self._synonym.id_by_pattern[pattern]
+            else:
+                id = self._keyvals.id_by_pattern[pattern]
+
+            if not id:
+                id = create_hash(pattern)
+
+            return id
 
         def create_hash(pattern):
             if pattern[0] in ['*', '%']:
@@ -164,22 +176,22 @@ class NlgTools:
                     self._keyvals.post_evals[pattern][3]
                 ])
 
-            hash_by_pattern[pattern] = s_hash
+            return s_hash
 
-        def create_all_hash(text):
+        def retrieve_all_id(text):
             patterns = [match.group() for match in re.finditer('[*~%][0-9]+[*~%]', text)]
             for pattern in patterns:
-                if pattern not in hash_by_pattern:
+                if pattern not in id_by_pattern:
                     if pattern[0] in ['*', '%']:
                         for syno in self._synonym.synos_by_pattern[pattern]:
-                            create_all_hash(syno)
-                        create_hash(pattern)
+                            retrieve_all_id(syno)
+                        id_by_pattern[pattern] = get_id(pattern)
                     else:
                         for syno in self._keyvals.post_evals[pattern][1:3]:
-                            create_all_hash(syno)
-                        create_hash(pattern)
+                            retrieve_all_id(syno)
+                        id_by_pattern[pattern] = get_id(pattern)
 
-        create_all_hash(text)
+        retrieve_all_id(text)
 
         return {
             "text": {
@@ -187,7 +199,7 @@ class NlgTools:
                 "beautiful": replace_pattern_by_hash(self.beautify(text))
             },
             "synonyms": [{
-                "symbol": hash_by_pattern[pattern],
+                "id": id_by_pattern[pattern],
                 "choices": [{
                     "raw": replace_pattern_by_hash(syno),
                     "beautiful": replace_pattern_by_hash(self.beautify(syno)),
@@ -195,7 +207,7 @@ class NlgTools:
                 } for syno in self._synonym.synos_by_pattern[pattern]]
             } for pattern in patterns if pattern[0] in ['*', '%']],
             "post_evals": [{
-                "symbol": hash_by_pattern[pattern],
+                "id": id_by_pattern[pattern],
                 "infos": {
                     "key": self._keyvals.post_evals[pattern][0],
                     "if_active": {
