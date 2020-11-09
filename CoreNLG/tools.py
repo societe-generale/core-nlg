@@ -4,6 +4,7 @@ created on 18/12/2018 14:19
 @author: fgiely
 """
 import functools
+import hashlib
 import json
 import os
 
@@ -110,4 +111,9 @@ def temporary_override_args(f):
         for k, v in tmp.items():
             setattr(args[0], k, v)
         return f_value
+
     return temporary_override_f
+
+
+def get_hash(to_hash):
+    return hashlib.sha256(json.dumps(to_hash).encode('utf-8')).hexdigest()

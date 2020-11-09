@@ -14,8 +14,7 @@ from lxml import etree
 from CoreNLG.FreeText import FreeText
 from CoreNLG.Intensity import Intensity
 from CoreNLG.IterElems import IterElems
-from CoreNLG.KeyVals import KeyVals
-from CoreNLG.Synonym import Synonym
+from CoreNLG.Synonyms import Synonyms
 from CoreNLG.decorators import beautifier
 from CoreNLG.resources.contraction import contraction
 
@@ -52,11 +51,9 @@ class NlgTools:
             last_sep=read_default_words(self._default_words, "iter_elems", "last_sep", default="and"),
         ).enum
 
-        self._keyvals = KeyVals()
-        self.post_eval = self._keyvals.post_eval
-
-        self._synonym = Synonym(freeze, self._keyvals)
+        self._synonym = Synonyms(freeze)
         self.nlg_syn = self._synonym.synonym
+        self.post_eval = self._synonym.post_eval
 
         self.free_text = FreeText().free_text
 
@@ -99,7 +96,7 @@ class NlgTools:
         self._is_beautiful = False
         text = list()
         for arg in args:
-            arg = self._synonym.handle_patterns(arg)
+            arg = self._synonym.handle_nodes(arg)
             text.append(arg)
             if not no_space:
                 text.append(" ")
@@ -134,134 +131,41 @@ class NlgTools:
         return etree.fromstring(self.add_tag(self.elem, self.text, **self.elem_attr))
 
     def get_text_details(self, text):
-        id_by_pattern = {}
-        patterns = self._synonym.get_found_patterns(text)
-
-        def hash_dict(dict_input):
-            return hashlib.sha256(json.dumps(dict_input).encode('utf-8')).hexdigest()
-
-        def replace_pattern_by_hash(text):
-            for pattern in id_by_pattern:
-                text = text.replace(pattern, id_by_pattern[pattern])
-            return text
-
-        def get_id(pattern):
-            if pattern[0] in ['*', '%']:
-                id = self._synonym.id_by_pattern[pattern]
-            else:
-                id = self._keyvals.id_by_pattern[pattern]
-
-            if not id:
-                id = create_hash(pattern)
-
-            return id
-
-        def create_hash(pattern):
-            if pattern[0] in ['*', '%']:
-                s_list = []
-                for syno in self._synonym.synos_by_pattern[pattern]:
-                    beautiful_syno = self.beautify(syno)
-                    keys = self._keyvals.keyval_context[pattern].get(syno)
-                    try:
-                        s_list.append([beautiful_syno, sorted(keys)])
-                    except TypeError:
-                        s_list.append([beautiful_syno, keys])
-                s_hash = hash_dict(sorted(s_list, key=lambda x: x[0]))
-            else:
-                s_hash = hash_dict([
-                    self._keyvals.post_evals[pattern][0],
-                    self.beautify(self._keyvals.post_evals[pattern][1]),
-                    self.beautify(self._keyvals.post_evals[pattern][2]),
-                    self._keyvals.post_evals[pattern][3]
-                ])
-
-            return s_hash
-
-        def retrieve_all_id(text):
-            patterns = [match.group() for match in re.finditer('[*~%][0-9]+[*~%]', text)]
-            for pattern in patterns:
-                if pattern not in id_by_pattern:
-                    if pattern[0] in ['*', '%']:
-                        for syno in self._synonym.synos_by_pattern[pattern]:
-                            retrieve_all_id(syno)
-                        id_by_pattern[pattern] = get_id(pattern)
-                    else:
-                        for syno in self._keyvals.post_evals[pattern][1:3]:
-                            retrieve_all_id(syno)
-                        id_by_pattern[pattern] = get_id(pattern)
-
-        retrieve_all_id(text)
+        nodes = self._synonym.get_nodes_in_text(text)
+        synonyms = [self._synonym.get_synonym_by_hash(node[1]) for node in nodes if node[0] == "synonym"]
+        post_evals = [self._synonym.get_post_eval_by_hash(node[1]) for node in nodes if node[0] == "post-eval"]
 
         return {
             "text": {
-                "raw": replace_pattern_by_hash(text),
-                "beautiful": replace_pattern_by_hash(self.beautify(text))
+                "raw": self._synonym.replace_tag_by_id(text),
+                "beautiful": self.beautify(self._synonym.replace_tag_by_id(text))
             },
+
             "synonyms": [{
-                "id": id_by_pattern[pattern],
+                "id": synonym.non_reg_id if synonym.non_reg_id is not None else synonym.hash,
                 "choices": [{
-                    "raw": replace_pattern_by_hash(syno),
-                    "beautiful": replace_pattern_by_hash(self.beautify(syno)),
-                    "keys": self._keyvals.keyval_context[pattern].get(syno)
-                } for syno in self._synonym.synos_by_pattern[pattern]]
-            } for pattern in patterns if pattern[0] in ['*', '%']],
+                    "raw": self._synonym.replace_tag_by_id(choice.text),
+                    "beautiful": self.beautify(self._synonym.replace_tag_by_id(choice.text)),
+                    "keys": list(choice.keys)
+                } for choice in sorted(synonym.choices, key=lambda x: x.hash)]
+            } for synonym in sorted(synonyms, key=lambda x: x.hash)],
+
             "post_evals": [{
-                "id": id_by_pattern[pattern],
+                "id": post_eval.non_reg_id if post_eval.non_reg_id is not None else post_eval.hash,
                 "infos": {
-                    "key": self._keyvals.post_evals[pattern][0],
+                    "key": post_eval.key,
                     "if_active": {
-                        "raw": replace_pattern_by_hash(self._keyvals.post_evals[pattern][1]),
-                        "beautiful": replace_pattern_by_hash(self.beautify(self._keyvals.post_evals[pattern][1]))
+                        "raw": self._synonym.replace_tag_by_id(post_eval.if_active),
+                        "beautiful": self.beautify(self._synonym.replace_tag_by_id(post_eval.if_active))
                     },
                     "if_inactive": {
-                        "raw": replace_pattern_by_hash(self._keyvals.post_evals[pattern][2]),
-                        "beautiful": replace_pattern_by_hash(self.beautify(self._keyvals.post_evals[pattern][2]))
+                        "raw": self._synonym.replace_tag_by_id(post_eval.if_inactive),
+                        "beautiful": self.beautify(self._synonym.replace_tag_by_id(post_eval.if_inactive))
                     },
-                    "deactivate": self._keyvals.post_evals[pattern][3]
+                    "deactivate": post_eval.clean
                 }
-            } for pattern in patterns if pattern[0] == '~']
+            } for post_eval in post_evals]
         }
 
     def get_all_texts(self, text):
-        return [self.beautify(combination) for combination in self.__get_all_combinations(text, [])]
-
-    def __get_all_combinations(self, text, active_keys):
-        first_node = re.search('[*~%][0-9]+[*~%]', text)
-
-        if first_node is not None:
-            pattern = first_node.group()
-
-            if pattern[0] in ['*', '%']:
-                choices = []
-
-                for syno in self._synonym.synos_by_pattern[pattern]:
-                    try:
-                        syno_keys = self._keyvals.keyval_context[pattern][syno]
-                    except:
-                        syno_keys = []
-
-                    try:
-                        choices.append((text.replace(pattern, syno, 1), active_keys + syno_keys))
-                    except:
-                        choices.append((text.replace(pattern, syno, 1), active_keys + [syno_keys]))
-
-                return [
-                    combination for choice in choices for combination in
-                    self.__get_all_combinations(choice[0], choice[1])
-                ]
-
-            elif pattern[0] == '~':
-                key = self._keyvals.post_evals[pattern][0]
-
-                new_text = text.replace(
-                    pattern,
-                    self._keyvals.post_evals[pattern][1 if key in active_keys else 2],
-                    1
-                )
-
-                if self._keyvals.post_evals[pattern][3]:
-                    active_keys = [k for k in active_keys if k != key]
-
-                return self.__get_all_combinations(new_text, active_keys)
-
-        return [text]
+        return [self.beautify(combination) for combination in self._synonym.get_all_combinations(text, [])]
