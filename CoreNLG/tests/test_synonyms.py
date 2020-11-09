@@ -13,18 +13,18 @@ from CoreNLG.tests.fixtures import post_treatment_with_synonyms_fr
 class TestSynonyms:
 
     @pytest.mark.parametrize(
-            "input",
-            [
-                [],
-                [""],
-                ["test"],
-                ["test", "syno", "", None]
-            ],
-        )
+        "input",
+        [
+            [""],
+            ["test"],
+            ["test", "syno", "", None]
+        ],
+    )
     def test_synonym_before_treatment(self, input):
         nlg = NlgTools()
         nlg_syn = nlg.nlg_syn
-        assert nlg_syn(input) == "*1*"
+        res = nlg_syn(input)
+        assert res[:28] == '<span class="synonym" hash="' and res[28 + 65:101] == "></span>"
 
     @pytest.mark.parametrize(
         "input",
@@ -198,5 +198,3 @@ class TestSynonyms:
             section.text = section.tools.post_eval("TEST_KEYVAL", "post", "", clean=True)
         section.write()
         assert section.html.xpath('//div')[0].text_content() == expected
-
-

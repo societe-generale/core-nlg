@@ -7,6 +7,7 @@ created on 25/07/2019 10:58
 import pytest
 
 from CoreNLG.DocumentConstructors import Datas, Document, TextClass
+from CoreNLG.Synonyms import Synonym
 from CoreNLG.tests.fixtures import create_empty_doc, create_empty_section, MyDatas
 
 
@@ -15,14 +16,14 @@ class TestDocument:
     def test_document_empty(self):
         document = create_empty_doc()
         expected = "\n".join([
-                        '<html>',
-                        '<head>',
-                        '<meta charset="utf-8">',
-                        '<title></title>',
-                        '<link rel="stylesheet" href="css/styles.css">',
-                        '</head>',
-                        '<body><div id="text_area"></div></body>',
-                        '</html>\n',
+            '<html>',
+            '<head>',
+            '<meta charset="utf-8">',
+            '<title></title>',
+            '<link rel="stylesheet" href="css/styles.css">',
+            '</head>',
+            '<body><div id="text_area"></div></body>',
+            '</html>\n',
         ])
         assert str(document) == expected
 
@@ -301,7 +302,7 @@ class TestTextClass:
         document, section = create_empty_section()
         text_class = TextClass(section)
         text_class.text = text_class.nlg_syn(["syno"])
-        assert str(text_class) == "*1*"
+        assert str(text_class)[:28] == '<span class="synonym" hash="' and str(text_class)[28 + 65:101] == "></span>"
 
     def test_text_class_iter_elems(self):
         document, section = create_empty_section()

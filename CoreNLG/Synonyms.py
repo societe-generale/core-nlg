@@ -38,17 +38,22 @@ class Synonyms:
         for arg in args:
             if isinstance(arg, list):
                 for choice in arg:
-                    choices.append(unpack_choice(choice))
+                    if choice is not None:
+                        choices.append(unpack_choice(choice))
             else:
-                choices.append(unpack_choice(arg))
+                if arg is not None:
+                    choices.append(unpack_choice(arg))
 
-        synonym = Synonym(mode, choices, non_reg_id=non_reg_id)
+        if choices:
+            synonym = Synonym(mode, choices, non_reg_id=non_reg_id)
 
-        # non_reg_id should identify a unique hash
-        self.__assert_synonym_id(synonym)
+            # non_reg_id should identify a unique hash
+            self.__assert_synonym_id(synonym)
 
-        self._synonyms.append(synonym)
-        return synonym.tag
+            self._synonyms.append(synonym)
+            return synonym.tag
+        else:
+            return ""
 
     def post_eval(self, key, if_active='', if_inactive='', clean=False, non_reg_id=None):
         post_eval = PostEval(key, if_active, if_inactive, clean, non_reg_id)
