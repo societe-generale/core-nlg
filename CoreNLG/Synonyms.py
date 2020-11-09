@@ -21,7 +21,7 @@ class Synonyms:
         self._active_keys = set()
         self._post_evals = []
 
-        self._node_regex = re.compile('<span class="(synonym|post-eval)" hash="(.*?)"/>')
+        self._node_regex = re.compile('<span class="(synonym|post-eval)" hash="(.*?)"></span>')
 
     def synonym(self, *args, mode="smart", non_reg_id=None):
         def unpack_choice(choice):
@@ -123,7 +123,7 @@ class Synonyms:
                         choice.text = choice.text.replace(node_tag, post_eval.if_inactive)
 
                     if post_eval.clean:
-                        keys_state[choice.hash] = keys_state[choice.hash].filter(lambda x: x != post_eval.key)
+                        keys_state[choice.hash].discard(post_eval.key)
 
         best_choice = self.__get_best_choice(choices, previous_synos)
         return best_choice.text, keys_state[best_choice.hash], synonyms_state[best_choice.hash]
@@ -300,7 +300,7 @@ class Synonym:
             self.non_reg_id]
         )
 
-        self.tag = f'<span class="synonym" hash="{self.hash}"/>'
+        self.tag = f'<span class="synonym" hash="{self.hash}"></span>'
 
 
 class Choice:
@@ -325,4 +325,4 @@ class PostEval:
             self.clean
         ])
 
-        self.tag = f"<span class=\"post-eval\" hash=\"{self.hash}\"/>"
+        self.tag = f"<span class=\"post-eval\" hash=\"{self.hash}\"></span>"
