@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en" dir=>
+
+<head>
+  <meta name="generator" content="Hugo 0.79.0" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TextClass#A TextClass is a class in which you will write your text. You should create your own sub-class for each part of your text.
+A TextClass takes a Section as parameter.
+class MyDatas(Datas) def __init__(self, json_in) super().__init__(json_in) self.my_job = &#34;developer&#34; class MyText(TextClass): def __init__(self, section): super().__init__(section) self.text = ( &#34;Hello&#34;, self.nlg_syn(&#34;world&#34;, &#34;everyone&#34;), &#34;.&#34;, self.nlg_tags(&#39;br&#39;), self.nlg_tags(&#39;b&#39;, &#34;Nice to meet you.&#34;), &#34;I am a&#34;, self.my_job, &#34;.&#34; ) my_datas = MyDatas(input) document = Document(my_datas) my_section = document.">
+<meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="TextClass" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://example.org/docs/framework/textclass/" />
+<meta property="og:updated_time" content="2019-02-11T19:27:37+10:00" />
+<title>TextClass | CoreNLG Documentation</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.134b70e5316650a530cb42e4e8630b2a01d532bebfc0337028211175336e4806.css" integrity="sha256-E0tw5TFmUKUwy0Lk6GMLKgHVMr6/wDNwKCERdTNuSAY=">
+<script defer src="/en.search.min.a5a8fe1f9e2bbd61d912d5f99a16cc720bec78b93a0ffd0533501c2006ea9f36.js" integrity="sha256-paj&#43;H54rvWHZEtX5mhbMcgvseLk6D/0FM1AcIAbqnzY="></script>
+<link rel="alternate" type="application/rss+xml" href="http://example.org/docs/framework/textclass/index.xml" title="CoreNLG Documentation" />
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body dir=>
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      
+  <nav>
+<h2 class="book-brand">
+  <a href="/"><span>CoreNLG Documentation</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/quickstart/" class="">Quickstart</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/textvar/" class="">TextVar</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/" class="">NlgTools</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/write_text/" class="">write_text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/text/" class="">text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_enum/" class="">nlg_enum</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_syn/" class="">nlg_syn</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/post_eval/" class="">post_eval</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_num/" class="">nlg_num</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_tags/" class="">nlg_tags</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/no_interpret/" class="">no_interpret</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/" class="">CoreNLG as a framework</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/datas/" class="">Datas</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/document/" class="">Document</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/section/" class="">Section</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/textclass/" class=" active">TextClass</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/" class="">Testing</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/freeze/" class="">Freeze synonyms</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_text_details/" class="">get_text_details</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_all_texts/" class="">get_all_texts</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script>
+
+
+ 
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>TextClass</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  <nav id="TableOfContents"></nav>
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><h1 id="textclass">
+  TextClass
+  <a class="anchor" href="#textclass">#</a>
+</h1>
+<p>A <strong>TextClass</strong> is a class in which you will write your text. You should create your own sub-class for each part of your text.<br>
+A TextClass takes a Section as parameter.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyDatas</span>(Datas)
+  <span style="color:#66d9ef">def</span> __init__(self, json_in)
+     super()<span style="color:#f92672">.</span>__init__(json_in)
+
+     self<span style="color:#f92672">.</span>my_job <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;developer&#34;</span>
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyText</span>(TextClass):
+  <span style="color:#66d9ef">def</span> __init__(self, section):
+    super()<span style="color:#f92672">.</span>__init__(section)
+
+    self<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> (
+      <span style="color:#e6db74">&#34;Hello&#34;</span>, self<span style="color:#f92672">.</span>nlg_syn(<span style="color:#e6db74">&#34;world&#34;</span>, <span style="color:#e6db74">&#34;everyone&#34;</span>), <span style="color:#e6db74">&#34;.&#34;</span>,
+
+      self<span style="color:#f92672">.</span>nlg_tags(<span style="color:#e6db74">&#39;br&#39;</span>),
+
+      self<span style="color:#f92672">.</span>nlg_tags(<span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#e6db74">&#34;Nice to meet you.&#34;</span>),
+
+      <span style="color:#e6db74">&#34;I am a&#34;</span>, self<span style="color:#f92672">.</span>my_job,  <span style="color:#e6db74">&#34;.&#34;</span>
+    )
+
+my_datas <span style="color:#f92672">=</span> MyDatas(input)
+
+document <span style="color:#f92672">=</span> Document(my_datas)
+
+my_section <span style="color:#f92672">=</span> document<span style="color:#f92672">.</span>new_section(html_elem_attr<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;mySection&#34;</span>})
+
+MyText(my_section)
+
+document<span style="color:#f92672">.</span>write()
+
+<span style="color:#75715e"># &lt;div id=&#34;mySection&#34;&gt;Hello everyone.&lt;br&gt; &lt;b&gt;Nice to meet you.&lt;/b&gt; I am a developer.&lt;/div&gt;</span>
+</code></pre></div><p>The TextClass is a powerful object which allows you to call all the NlgTools methods with <strong>self</strong>.<br>
+You can also access every attributes of your Datas class the same way.</p>
+<p>The <strong>self.text</strong> write your text in the Section that was send as a parameter to your TextClass.<br>
+You can use it with strings, nested lists or tuples and it will do the same job as the TextVar object.<br>
+Don&rsquo;t be afraid ! The &lsquo;=&rsquo; operator is override, to enjoy all the possibility of it, you should do :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">self<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello,&#34;</span>
+self<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;this is one sentence&#34;</span>
+self<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> (
+  <span style="color:#e6db74">&#34;that I am&#34;</span>,
+  <span style="color:#e6db74">&#34;writing here.&#34;</span>
+)
+
+<span style="color:#75715e"># Hello, this is one sentence that I am writing here.</span>
+</code></pre></div></article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      
+  <nav id="TableOfContents"></nav>
+
+ 
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

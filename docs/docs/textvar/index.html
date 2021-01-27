@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" dir=>
+
+<head>
+  <meta name="generator" content="Hugo 0.79.0" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TextVar#Constructor#The TextVar object is a sub-class of str. It makes it easier to concatenate strings.
+Its constructor takes 0 to n strings and concatenates them by adding a space between them.
+It will unpack any nested list or tuple that is provided as argument.
+text_1 = TextVar() # &#34;&#34; text_2 = TextVar(&#34;It was the best sandcastle he had ever seen.&#34;) # It was the best sandcastle he had ever seen.">
+<meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="TextVar" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://example.org/docs/textvar/" />
+<meta property="og:updated_time" content="2019-02-11T19:27:37+10:00" />
+<title>TextVar | CoreNLG Documentation</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.134b70e5316650a530cb42e4e8630b2a01d532bebfc0337028211175336e4806.css" integrity="sha256-E0tw5TFmUKUwy0Lk6GMLKgHVMr6/wDNwKCERdTNuSAY=">
+<script defer src="/en.search.min.a5a8fe1f9e2bbd61d912d5f99a16cc720bec78b93a0ffd0533501c2006ea9f36.js" integrity="sha256-paj&#43;H54rvWHZEtX5mhbMcgvseLk6D/0FM1AcIAbqnzY="></script>
+<link rel="alternate" type="application/rss+xml" href="http://example.org/docs/textvar/index.xml" title="CoreNLG Documentation" />
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body dir=>
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      
+  <nav>
+<h2 class="book-brand">
+  <a href="/"><span>CoreNLG Documentation</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/quickstart/" class="">Quickstart</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/textvar/" class=" active">TextVar</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/" class="">NlgTools</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/write_text/" class="">write_text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/text/" class="">text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_enum/" class="">nlg_enum</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_syn/" class="">nlg_syn</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/post_eval/" class="">post_eval</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_num/" class="">nlg_num</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_tags/" class="">nlg_tags</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/no_interpret/" class="">no_interpret</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/" class="">CoreNLG as a framework</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/datas/" class="">Datas</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/document/" class="">Document</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/section/" class="">Section</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/textclass/" class="">TextClass</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/" class="">Testing</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/freeze/" class="">Freeze synonyms</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_text_details/" class="">get_text_details</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_all_texts/" class="">get_all_texts</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script>
+
+
+ 
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>TextVar</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#constructor">Constructor</a></li>
+    <li><a href="#appending">Appending</a></li>
+  </ul>
+</nav>
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><h1 id="textvar">
+  TextVar
+  <a class="anchor" href="#textvar">#</a>
+</h1>
+<h2 id="constructor">
+  Constructor
+  <a class="anchor" href="#constructor">#</a>
+</h2>
+<p>The <strong>TextVar</strong> object is a sub-class of <strong>str</strong>. It makes it easier to concatenate strings.<br>
+Its constructor takes <strong>0 to n</strong> strings and concatenates them by adding a space between them.<br>
+It will unpack any nested <strong>list</strong> or <strong>tuple</strong> that is provided as argument.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">text_1 <span style="color:#f92672">=</span> TextVar()
+<span style="color:#75715e"># &#34;&#34;</span>
+
+text_2 <span style="color:#f92672">=</span> TextVar(<span style="color:#e6db74">&#34;It was the best sandcastle he had ever seen.&#34;</span>)
+<span style="color:#75715e"># It was the best sandcastle he had ever seen.</span>
+
+text_3 <span style="color:#f92672">=</span> TextVar(<span style="color:#e6db74">&#34;All you need to do&#34;</span>, <span style="color:#e6db74">&#34;is pick up the pen&#34;</span>, <span style="color:#e6db74">&#34;and begin.&#34;</span>)
+<span style="color:#75715e"># All you need to do is pick up the pen and begin.</span>
+
+text_4 <span style="color:#f92672">=</span> TextVar(<span style="color:#e6db74">&#34;He loved eating&#34;</span>, (<span style="color:#e6db74">&#34;his&#34;</span>, <span style="color:#e6db74">&#34;bananas&#34;</span>), <span style="color:#e6db74">&#34;in hot dog buns.&#34;</span>)
+<span style="color:#75715e"># He loved eating his bananas in hot dog buns.</span>
+</code></pre></div><h2 id="appending">
+  Appending
+  <a class="anchor" href="#appending">#</a>
+</h2>
+<p>You must use the &lsquo;<strong>+=</strong>&rsquo; operator to append text to your string. This works the same as the constructor.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Mary&#34;</span>
+city <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;New-York&#34;</span>
+number_of_children <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
+
+text <span style="color:#f92672">=</span> TextVar()
+
+text <span style="color:#f92672">+=</span> name, <span style="color:#e6db74">&#34;lives in&#34;</span>, city, <span style="color:#e6db74">&#34;.&#34;</span>
+
+<span style="color:#66d9ef">if</span> number_of_children <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+  text <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;She does not have children.&#34;</span>
+<span style="color:#66d9ef">elif</span> number_of_children <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+  text <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;She has one child.&#34;</span>
+<span style="color:#66d9ef">else</span>:
+  text <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;She has&#34;</span>, str(number_of_children), <span style="color:#e6db74">&#34;children.&#34;</span>
+
+<span style="color:#66d9ef">print</span>(text)
+<span style="color:#75715e"># Mary lives in New-York . She has 2 children.</span>
+</code></pre></div><p>Now you may have noticed the space we introduced before the dot in the first sentence. This is not correct and should not be present in the final text, so what are the options?</p>
+<p>You could use a simple trick like this one:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">text <span style="color:#f92672">+=</span> name, <span style="color:#e6db74">&#34;lives in&#34;</span>, city <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;.&#34;</span>
+</code></pre></div><p>This will make sure no space will be added before the dot, however there is a better way to do it using the text attribute from the NlgTools object that will correct any syntaxic mistakes in your text. We will see it in the next chapter.</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#constructor">Constructor</a></li>
+    <li><a href="#appending">Appending</a></li>
+  </ul>
+</nav>
+
+ 
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

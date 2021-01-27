@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en" dir=>
+
+<head>
+  <meta name="generator" content="Hugo 0.79.0" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="get_text_details#The get_text_details method is the recommended way for non-regression testing.
+You should call get_text_details from your NlgTools object instead of the write_text method (or from your Document object instead of the write method).
+This method returns a python dict containing all the data on the possible generated texts from your input.
+from CoreNLG.DocumentConstructors import Datas, TextClass, Document input = {} class MyDatas(Datas): def __init__(self, json_in): super().__init__(json_in) class MyText(TextClass): def __init__(self, section): super().">
+<meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="get_text_details" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://example.org/docs/testing/get_text_details/" />
+<meta property="og:updated_time" content="2019-02-11T19:27:37+10:00" />
+<title>get_text_details | CoreNLG Documentation</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.134b70e5316650a530cb42e4e8630b2a01d532bebfc0337028211175336e4806.css" integrity="sha256-E0tw5TFmUKUwy0Lk6GMLKgHVMr6/wDNwKCERdTNuSAY=">
+<script defer src="/en.search.min.a5a8fe1f9e2bbd61d912d5f99a16cc720bec78b93a0ffd0533501c2006ea9f36.js" integrity="sha256-paj&#43;H54rvWHZEtX5mhbMcgvseLk6D/0FM1AcIAbqnzY="></script>
+<link rel="alternate" type="application/rss+xml" href="http://example.org/docs/testing/get_text_details/index.xml" title="CoreNLG Documentation" />
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body dir=>
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      
+  <nav>
+<h2 class="book-brand">
+  <a href="/"><span>CoreNLG Documentation</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/quickstart/" class="">Quickstart</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/textvar/" class="">TextVar</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/" class="">NlgTools</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/write_text/" class="">write_text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/text/" class="">text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_enum/" class="">nlg_enum</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_syn/" class="">nlg_syn</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/post_eval/" class="">post_eval</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_num/" class="">nlg_num</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_tags/" class="">nlg_tags</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/no_interpret/" class="">no_interpret</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/" class="">CoreNLG as a framework</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/datas/" class="">Datas</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/document/" class="">Document</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/section/" class="">Section</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/textclass/" class="">TextClass</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/" class="">Testing</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/freeze/" class="">Freeze synonyms</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_text_details/" class=" active">get_text_details</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_all_texts/" class="">get_all_texts</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script>
+
+
+ 
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>get_text_details</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  <nav id="TableOfContents"></nav>
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><h1 id="get_text_details">
+  get_text_details
+  <a class="anchor" href="#get_text_details">#</a>
+</h1>
+<p>The <strong>get_text_details</strong> method is the recommended way for non-regression testing.</p>
+<p>You should call <strong>get_text_details</strong> from your NlgTools object <strong>instead</strong> of the <strong>write_text</strong> method (or from your Document object instead of the <strong>write</strong> method).</p>
+<p>This method returns a python dict containing all the data on the possible generated texts from your input.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> CoreNLG.DocumentConstructors <span style="color:#f92672">import</span> Datas, TextClass, Document
+
+input <span style="color:#f92672">=</span> {}
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyDatas</span>(Datas):
+    <span style="color:#66d9ef">def</span> __init__(self, json_in):
+        super()<span style="color:#f92672">.</span>__init__(json_in)
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyText</span>(TextClass):
+    <span style="color:#66d9ef">def</span> __init__(self, section):
+        super()<span style="color:#f92672">.</span>__init__(section)
+
+        self<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> (
+            <span style="color:#e6db74">&#34;Hello&#34;</span>,
+
+            self<span style="color:#f92672">.</span>nlg_syn(
+                (<span style="color:#e6db74">&#34;world&#34;</span>, <span style="color:#e6db74">&#34;WORLD_USED&#34;</span>),
+                <span style="color:#e6db74">&#34;everyone&#34;</span>
+            ),
+
+            <span style="color:#e6db74">&#34;.&#34;</span>,
+
+            <span style="color:#e6db74">&#34;I can speak to&#34;</span>,
+
+            self<span style="color:#f92672">.</span>post_eval(
+                <span style="color:#e6db74">&#39;WORLD_USED&#39;</span>,
+                <span style="color:#e6db74">&#39;everyone&#39;</span>,
+                <span style="color:#e6db74">&#39;the world&#39;</span>,
+            ),
+
+            <span style="color:#e6db74">&#34;!&#34;</span>
+        )
+
+my_datas <span style="color:#f92672">=</span> MyDatas(input)
+
+document <span style="color:#f92672">=</span> Document(my_datas)
+
+MyText(document<span style="color:#f92672">.</span>new_section())
+
+<span style="color:#75715e"># document.write()</span>
+details <span style="color:#f92672">=</span> document<span style="color:#f92672">.</span>get_text_details()
+<span style="color:#66d9ef">print</span>(details)
+</code></pre></div><p>This will give you the following output:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
+  {
+    <span style="color:#f92672">&#34;text&#34;</span>: {
+      <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;Hello b7e736edc59bb0c73afed33daa185fa2e8d5e8b34127c0562543e05e017aa644 . I can speak to 45b8643250f5b9e1756f079f9d93c89dee74abea83d275a4be59e03da4ce8ed2 !&#34;</span>,
+      <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;Hello b7e736edc59bb0c73afed33daa185fa2e8d5e8b34127c0562543e05e017aa644. I can speak to 45b8643250f5b9e1756f079f9d93c89dee74abea83d275a4be59e03da4ce8ed2 !&#34;</span>
+    },
+    <span style="color:#f92672">&#34;synonyms&#34;</span>: [
+      {
+        <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;b7e736edc59bb0c73afed33daa185fa2e8d5e8b34127c0562543e05e017aa644&#34;</span>,
+        <span style="color:#f92672">&#34;choices&#34;</span>: [
+          { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;world&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;World&#34;</span>, <span style="color:#f92672">&#34;keys&#34;</span>: [<span style="color:#e6db74">&#34;WORLD_USED&#34;</span>] },
+          { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;everyone&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;Everyone&#34;</span>, <span style="color:#f92672">&#34;keys&#34;</span>: [] }
+        ]
+      }
+    ],
+    <span style="color:#f92672">&#34;post_evals&#34;</span>: [
+      {
+        <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;45b8643250f5b9e1756f079f9d93c89dee74abea83d275a4be59e03da4ce8ed2&#34;</span>,
+        <span style="color:#f92672">&#34;infos&#34;</span>: {
+          <span style="color:#f92672">&#34;key&#34;</span>: <span style="color:#e6db74">&#34;WORLD_USED&#34;</span>,
+          <span style="color:#f92672">&#34;if_active&#34;</span>: { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;everyone&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;Everyone&#34;</span> },
+          <span style="color:#f92672">&#34;if_inactive&#34;</span>: { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;the world&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;The world&#34;</span> },
+          <span style="color:#f92672">&#34;deactivate&#34;</span>: <span style="color:#960050;background-color:#1e0010">False</span>
+        }
+      }
+    ]
+  }
+]
+</code></pre></div><p>You obtain all the data you need for non regression testing such as the text (raw and beautified) and the different branches (synonyms and post evals).</p>
+<p>The id is the hash of the object data. If you want to make sure the hash won&rsquo;t change you can specify an id when using the nlg_syn method:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">self<span style="color:#f92672">.</span>nlg_syn(
+    (<span style="color:#e6db74">&#34;world&#34;</span>, <span style="color:#e6db74">&#34;WORLD_USED&#34;</span>),
+    <span style="color:#e6db74">&#34;everyone&#34;</span>,
+    non_reg_id<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;synonym_world_or_everyone&#34;</span>
+)
+
+
+self<span style="color:#f92672">.</span>post_eval(
+    <span style="color:#e6db74">&#39;WORLD_USED&#39;</span>,
+    <span style="color:#e6db74">&#39;everyone&#39;</span>,
+    <span style="color:#e6db74">&#39;the world&#39;</span>,
+    non_reg_id<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;post_eval_everyone_or_the_world&#34;</span>
+)
+</code></pre></div><p>You&rsquo;ll get:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">[
+  {
+    <span style="color:#f92672">&#34;text&#34;</span>: {
+      <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;Hello synonym_world_or_everyone . I can speak to post_eval_everyone_or_the_world !&#34;</span>,
+      <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;Hello synonym_world_or_everyone. I can speak to post_eval_everyone_or_the_world !&#34;</span>
+    },
+    <span style="color:#f92672">&#34;synonyms&#34;</span>: [
+      {
+        <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;synonym_world_or_everyone&#34;</span>,
+        <span style="color:#f92672">&#34;choices&#34;</span>: [
+          { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;world&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;World&#34;</span>, <span style="color:#f92672">&#34;keys&#34;</span>: [<span style="color:#e6db74">&#34;WORLD_USED&#34;</span>] },
+          { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;everyone&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;Everyone&#34;</span>, <span style="color:#f92672">&#34;keys&#34;</span>: [] }
+        ]
+      }
+    ],
+    <span style="color:#f92672">&#34;post_evals&#34;</span>: [
+      {
+        <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;post_eval_everyone_or_the_world&#34;</span>,
+        <span style="color:#f92672">&#34;infos&#34;</span>: {
+          <span style="color:#f92672">&#34;key&#34;</span>: <span style="color:#e6db74">&#34;WORLD_USED&#34;</span>,
+          <span style="color:#f92672">&#34;if_active&#34;</span>: { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;everyone&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;Everyone&#34;</span> },
+          <span style="color:#f92672">&#34;if_inactive&#34;</span>: { <span style="color:#f92672">&#34;raw&#34;</span>: <span style="color:#e6db74">&#34;the world&#34;</span>, <span style="color:#f92672">&#34;beautiful&#34;</span>: <span style="color:#e6db74">&#34;The world&#34;</span> },
+          <span style="color:#f92672">&#34;deactivate&#34;</span>: <span style="color:#960050;background-color:#1e0010">False</span>
+        }
+      }
+    ]
+  }
+]
+</code></pre></div><p>You can now save a json file for each of your inputs and track any changes on any branches of your text.</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      
+  <nav id="TableOfContents"></nav>
+
+ 
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

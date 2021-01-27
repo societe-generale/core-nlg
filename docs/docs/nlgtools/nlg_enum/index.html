@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en" dir=>
+
+<head>
+  <meta name="generator" content="Hugo 0.79.0" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="nlg_enum#The nlg_enum method allows to enumerate over a list of items and create a sentence with it.
+It automatically format the sentence with bullet-point style when the number of elements is above a provided threshold.
+nlg = NlgTools(lang=&#39;en&#39;) my_list = [&#34;six apples&#34;, &#34;three bananas&#34;, &#34;two peaches&#34;] nlg.nlg_enum(my_list) # &#34;six apples, three bananas and two peaches&#34; Parameters#   Parameter Type Default Value     The list of elements to iterate over list    max_elem (maximum number of elements of the list to display) int None (all elements)   sep (the seperator between each element except last one) string &ldquo;,&rdquo;   last_sep (separator before last item) string &ldquo;and&rdquo; (en) &ldquo;et&rdquo; (fr)   begin_w (will be inserted before enumeration) string &quot;&quot;   end_w (will be inserted after enumeration) string &quot;&quot;   nb_elem_bullet (if the number of displayed elements is above or equals this number, the output will be a bullet-point list) int None   end_of_bullet (will be inserted at the end of each bullet except last) string &quot;&quot;   end_of_last_bullet (will be inserted at the end of last bullet) string &quot;&quot;   capitalize_bullets (firsts letter of each bullets will be capitalized) boolean True   text_if_empty_list (will be displayed if the list is empty) string &quot;&quot;    Usage#nlg = NlgTools() my_list = [&#39;apples&#39;, &#39;bananas&#39;, &#39;peaches&#39;] text = nlg.">
+<meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="nlg_enum" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://example.org/docs/nlgtools/nlg_enum/" />
+<meta property="og:updated_time" content="2019-02-11T19:27:37+10:00" />
+<title>nlg_enum | CoreNLG Documentation</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.134b70e5316650a530cb42e4e8630b2a01d532bebfc0337028211175336e4806.css" integrity="sha256-E0tw5TFmUKUwy0Lk6GMLKgHVMr6/wDNwKCERdTNuSAY=">
+<script defer src="/en.search.min.a5a8fe1f9e2bbd61d912d5f99a16cc720bec78b93a0ffd0533501c2006ea9f36.js" integrity="sha256-paj&#43;H54rvWHZEtX5mhbMcgvseLk6D/0FM1AcIAbqnzY="></script>
+<link rel="alternate" type="application/rss+xml" href="http://example.org/docs/nlgtools/nlg_enum/index.xml" title="CoreNLG Documentation" />
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body dir=>
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      
+  <nav>
+<h2 class="book-brand">
+  <a href="/"><span>CoreNLG Documentation</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/quickstart/" class="">Quickstart</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/textvar/" class="">TextVar</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/" class="">NlgTools</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/write_text/" class="">write_text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/text/" class="">text</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_enum/" class=" active">nlg_enum</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_syn/" class="">nlg_syn</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/post_eval/" class="">post_eval</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_num/" class="">nlg_num</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/nlg_tags/" class="">nlg_tags</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/nlgtools/no_interpret/" class="">no_interpret</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/" class="">CoreNLG as a framework</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/datas/" class="">Datas</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/document/" class="">Document</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/section/" class="">Section</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/framework/textclass/" class="">TextClass</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/" class="">Testing</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/freeze/" class="">Freeze synonyms</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_text_details/" class="">get_text_details</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="http://example.org/docs/testing/get_all_texts/" class="">get_all_texts</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script>
+
+
+ 
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>nlg_enum</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#parameters">Parameters</a></li>
+    <li><a href="#usage">Usage</a></li>
+  </ul>
+</nav>
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><h1 id="nlg_enum">
+  nlg_enum
+  <a class="anchor" href="#nlg_enum">#</a>
+</h1>
+<p>The <strong>nlg_enum</strong> method allows to enumerate over a list of items and create a sentence with it.<br>
+It automatically format the sentence with bullet-point style when the number of elements is above a provided threshold.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">nlg <span style="color:#f92672">=</span> NlgTools(lang<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;en&#39;</span>)
+
+my_list <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;six apples&#34;</span>, <span style="color:#e6db74">&#34;three bananas&#34;</span>, <span style="color:#e6db74">&#34;two peaches&#34;</span>]
+
+nlg<span style="color:#f92672">.</span>nlg_enum(my_list)
+
+<span style="color:#75715e"># &#34;six apples, three bananas and two peaches&#34;</span>
+</code></pre></div><h2 id="parameters">
+  Parameters
+  <a class="anchor" href="#parameters">#</a>
+</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The list of elements to iterate over</td>
+<td>list</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>max_elem</strong> (maximum number of elements of the list to display)</td>
+<td>int</td>
+<td>None <!-- raw HTML omitted --> (all elements)</td>
+</tr>
+<tr>
+<td><strong>sep</strong> (the seperator between each element except last one)</td>
+<td>string</td>
+<td>&ldquo;,&rdquo;</td>
+</tr>
+<tr>
+<td><strong>last_sep</strong> (separator before last item)</td>
+<td>string</td>
+<td>&ldquo;and&rdquo; (en) <!-- raw HTML omitted -->&ldquo;et&rdquo; (fr)</td>
+</tr>
+<tr>
+<td><strong>begin_w</strong> (will be inserted before enumeration)</td>
+<td>string</td>
+<td>&quot;&quot;</td>
+</tr>
+<tr>
+<td><strong>end_w</strong> (will be inserted after enumeration)</td>
+<td>string</td>
+<td>&quot;&quot;</td>
+</tr>
+<tr>
+<td><strong>nb_elem_bullet</strong> (if the number of displayed elements is above or equals this number, the output will be a bullet-point list)</td>
+<td>int</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>end_of_bullet</strong> (will be inserted at the end of each bullet except last)</td>
+<td>string</td>
+<td>&quot;&quot;</td>
+</tr>
+<tr>
+<td><strong>end_of_last_bullet</strong> (will be inserted at the end of last bullet)</td>
+<td>string</td>
+<td>&quot;&quot;</td>
+</tr>
+<tr>
+<td><strong>capitalize_bullets</strong> (firsts letter of each bullets will be capitalized)</td>
+<td>boolean</td>
+<td>True</td>
+</tr>
+<tr>
+<td><strong>text_if_empty_list</strong> (will be displayed if the list is empty)</td>
+<td>string</td>
+<td>&quot;&quot;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="usage">
+  Usage
+  <a class="anchor" href="#usage">#</a>
+</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">nlg <span style="color:#f92672">=</span> NlgTools()
+
+my_list <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;apples&#39;</span>, <span style="color:#e6db74">&#39;bananas&#39;</span>, <span style="color:#e6db74">&#39;peaches&#39;</span>]
+
+text <span style="color:#f92672">=</span> nlg<span style="color:#f92672">.</span>nlg_enum(
+  my_list,
+  max_elem<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>,
+  nb_elem_bullet<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>,
+  begin_w<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Fruits I like :&#39;</span>,
+  end_w<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Delicious, right ?&#39;</span>,
+  end_of_bullet<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;,&#39;</span>,
+  end_of_last_bullet<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;.&#39;</span>
+)
+
+nlg<span style="color:#f92672">.</span>write_text(text)
+
+<span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">Fruits I like :
+</span><span style="color:#e6db74">  - Apples,
+</span><span style="color:#e6db74">  - Bananas.
+</span><span style="color:#e6db74">Delicious, right ?
+</span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+
+my_list <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;apples&#39;</span>, <span style="color:#e6db74">&#39;bananas&#39;</span>]
+
+text <span style="color:#f92672">=</span> nlg<span style="color:#f92672">.</span>nlg_enum([TextVar(
+  fruit,
+  nlg<span style="color:#f92672">.</span>nlg_syn(<span style="color:#e6db74">&#39;so&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>),
+  nlg<span style="color:#f92672">.</span>nlg_syn(<span style="color:#e6db74">&#39;succulent&#39;</span>, <span style="color:#e6db74">&#39;tasty&#39;</span>))
+) <span style="color:#66d9ef">for</span> fruit <span style="color:#f92672">in</span> my_list],
+  begin_w<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;I find&#39;</span>, end_w<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;.&#39;</span>
+)
+
+nlg<span style="color:#f92672">.</span>write_text(text)
+
+<span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">One of the following:
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">I find apples so tasty and bananas succulent.
+</span><span style="color:#e6db74">I find apples tasty and bananas so succulent.
+</span><span style="color:#e6db74">I find apples so succulent and bananas tasty.
+</span><span style="color:#e6db74">I find apples succulent and bananas so tasty.
+</span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</code></pre></div></article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#parameters">Parameters</a></li>
+    <li><a href="#usage">Usage</a></li>
+  </ul>
+</nav>
+
+ 
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
